@@ -1,0 +1,61 @@
+/* 
+
+sqlLite.org
+
+Crear proyecto:
+    proyecto con plantilla tabs en ionic
+    ionic start coffee
+    cambiar nombre en capacitor.config.ts
+    cambiar tsconfig.json  "strict": false,
+
+
+
+Carpetas
+    Crear carpeta assets en la raiz del proyecto:  copiar los archivos para los iconos de la aplicacion.
+
+Instalaciones
+    npm install @capacitor/assets --save-dev       basado en la página:  https://capacitorjs.com/docs/guides/splash-screens-and-icons
+    npm install @capacitor/device                  basado en la página:  https://capacitorjs.com/docs/apis/device      Me permite obtener la info de mi telefono
+    npm install @capacitor/preferences             basado en la pàgina:  https://capacitorjs.com/docs/apis/preferences  Me permite manejar localstorage en el telefono
+    
+    
+Base de datos
+    npm install --save @capacitor-community/sqlite                       sqlite Para movil:   https://github.com/capacitor-community/sqlite
+    Para poder trabajar en web sqlite para probar:  son extensiones del plugin anterior
+        npm install --save jeep-sqlite
+        npm install --save sql.js 
+
+Documentacion sql-lite
+    https://github.com/capacitor-community/sqlite/tree/master/docs
+
+
+
+Se debe pegar el plugin en capacitor.config.ts
+                    import type { CapacitorConfig } from '@capacitor/cli';
+                    const config: CapacitorConfig = {
+                    appId: 'io.class.manager',
+                    appName: 'ManagerClass',
+                    webDir: 'www',
+                    plugins: {
+                        CapacitorSQLite: {
+                        iosDatabaseLocation: 'Library/CapacitorDatabase',
+                        iosIsEncryption: true,
+                        iosKeychainPrefix: 'angular-sqlite-app-starter',
+                        iosBiometric: {
+                            biometricAuth: false,
+                            biometricTitle : "Biometric login for capacitor sqlite"
+                        },
+                        androidIsEncryption: true,
+                        androidBiometric: {
+                            biometricAuth : false,
+                            biometricTitle : "Biometric login for capacitor sqlite",
+                            biometricSubTitle : "Log in using your biometric"
+                        },
+                        electronIsEncryption: true,
+                        electronWindowsLocation: "C:\\ProgramData\\CapacitorDatabases",
+                        electronMacLocation: "/Volumes/Development_Lacie/Development/Databases",
+                        electronLinuxLocation: "Databases"
+                        }
+                    }
+                    }
+                    export default config;
