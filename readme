@@ -59,3 +59,65 @@ Se debe pegar el plugin en capacitor.config.ts
                     }
                     }
                     export default config;
+
+// Configuraciones
+// For Angular framework
+// Copy manually the file sql-wasm.wasm from node_modules/sql.js/dist/sql-wasm.wasm to the src/assets folder of YOUR_APP
+"copysqlwasm": "copyfiles -u 3 node_modules/sql.js/dist/sql-wasm.wasm src/assets"
+// install: npm install --save-dev copyfiles
+
+// Crear servicio: ionic g service services/sqlite-manager
+
+// En app.module.ts:
+import { defineCustomElements as jeepSqlite} from 'jeep-sqlite/loader';
+jeepSqlite(window);
+schemas: [CUSTOM_ELEMENTS_SCHEMA];
+
+// En app.component.html:
+<ion-app>
+  <ion-router-outlet></ion-router-outlet>
+  <jeep-sqlite *ngIf="isWeb"></jeep-sqlite>
+</ion-app>
+
+// En app.component.ts:
+import { Component } from '@angular/core';
+import { Device } from '@capacitor/device';
+import { Platform } from '@ionic/angular';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: 'app.component.html',
+  styleUrls: ['app.component.scss'],
+})
+export class AppComponent {
+  public isWeb: boolean;
+
+  constructor(private platform: Platform) {
+    this.isWeb = false;
+  }
+
+  initApp() {
+    this.platform.ready().then(async () => {
+      const info = await Device.getInfo();
+      this.isWeb = info.platform == 'web';
+    });
+  }
+}
+
+// ciclos de vida: https://ionicframework.com/docs/angular/lifecycle
+
+// Moment.js: momentjs.com
+npm install moment --save
+
+// Crear componente:
+ionic g component page/student/tab1/component/form-student
+ionic g component pages/class/tab2/component/form-class
+
+ionic g component shared/filter
+ionic g component shared/filter/filter-content
+
+// Build Android:
+ionic capacitor build android
+npx capacitor-assets generate --android
+
+*/

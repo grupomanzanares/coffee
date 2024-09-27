@@ -1,17 +1,17 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.coffee.starter',
+  appId: 'io.class.manager',
   appName: 'coffee',
   webDir: 'www',
   plugins: {
     CapacitorSQLite: {
-      iosDatabaseLocation: 'Library/CapacitorDatabase',
-      iosIsEncryption: true,
-      iosKeychainPrefix: 'angular-sqlite-app-starter',
-      iosBiometric: {
-        biometricAuth: false,
-        biometricTitle : "Biometric login for capacitor sqlite"
+    iosDatabaseLocation: 'Library/CapacitorDatabase',
+    iosIsEncryption: true,
+    iosKeychainPrefix: 'angular-sqlite-app-starter',
+    iosBiometric: {
+      biometricAuth: false,
+      biometricTitle : "Biometric login for capacitor sqlite"
       },
       androidIsEncryption: true,
       androidBiometric: {
@@ -26,5 +26,4 @@ const config: CapacitorConfig = {
     }
   }
 }
-
 export default config;

@@ -1,0 +1,70 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title class="ion-text-center">
+      Recolecctores
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-grid class="ion-margin-top ion-padding">
+    <ion-row *ngIf="collector && collector.length == 0">
+      <ion-col class="ion-text-center">
+        <ion-text>No hay recolectores reguistrados</ion-text>
+      </ion-col>
+    </ion-row>
+
+    <div *ngIf="!showForm">
+      <ion-row>
+        <ion-col>
+          <ion-searchbar placeholder="Buscar" color="light" [debounce]="300" (ionInput)="searchCollectors($event)"></ion-searchbar>
+        </ion-col>
+      </ion-row>
+  
+      <ion-row *ngFor="let row of collector">
+        <ion-col>
+          <ion-item>
+            {{ row.name}}, {{ row.surname}}
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </div>
+
+
+    <ion-row *ngIf="showForm" class="ion-margin">
+      <form (ngSubmit)="createUpdateCollectors()">
+        <ion-item>
+          <ion-input class="ion-margin" label="Nombre" name="name" label-placement="floating" fill="outline" placeholder="Enter text" type="text" [(ngModel)]="name"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input class="ion-margin" label="Apellidos" name="surname" label-placement="floating" fill="outline" type="text" [(ngModel)]="surname"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input class="ion-margin" label="Correo" name="email" label-placement="floating" fill="outline" type="email" [(ngModel)]="email"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-input class="ion-margin" label="Telefono" name="phone" label-placement="floating" fill="outline" type="phone" [(ngModel)]="phone"></ion-input>
+        </ion-item>
+
+        <ion-button class="ion-margin" expand="block" type="submit" (click)="onCloseForm()">Guardar</ion-button>
+      </form>
+    </ion-row>
+  </ion-grid>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="!showForm">
+    <ion-fab-button (click)="onShowForm()" size="small" color="success">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <!-- <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="showForm">
+    <ion-fab-button (click)="onCloseForm()" size="small" color="danger">
+      <ion-icon name="close-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab> -->
+
+</ion-content>

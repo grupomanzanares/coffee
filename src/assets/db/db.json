@@ -1,0 +1,172 @@
+{
+    "database": "coffee.db",
+    "version": 1,
+    "encrypted": false,
+    "mode": "full",
+    "tables" :[
+        {
+            "name": "recolectores",
+            "schema": [
+                {
+                    "column": "id",
+                    "value": "INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"
+                },
+                {
+                    "column": "name",
+                    "value": "TEXT NOT NULL"
+                },
+                {
+                    "column": "surname",
+                    "value": "TEXT"
+                },
+                {
+                    "column": "email",
+                    "value": "TEXT NOT NULL"
+                },
+                {
+                    "column": "phone",
+                    "value":"TEXT NOT NULL"
+                },
+                {
+                    "column": "active",
+                    "value":"INTEGER DEFAULT 1"
+                }
+            ],
+            "values":[
+                [
+                    1,
+                    "Miguel",
+                    "Chuil",
+                    "migueltest.com",
+                    "2348761309",
+                    1
+                ],
+                [
+                    2,
+                    "Carlos",
+                    "Duarte",
+                    "carlos.com",
+                    "3174923343",
+                    1
+                ],
+                [
+                    3,
+                    "Cristian",
+                    "Paez",
+                    "cristian.com",
+                    "3218652209",
+                    1
+                ]
+                
+            ]
+        },
+        {
+            "name": "recoleccion",
+            "schema": [
+                {
+                    "column": "id",
+                    "value": "INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"
+                },
+                {
+                    "column": "date_start",
+                    "value": "TEXT"
+                },
+                {
+                    "column": "date_end",
+                    "value": "TEXT"
+                },
+                {
+                    "column": "id_recolector",
+                    "value": "INTEGER NOT NULL"
+                },
+                {
+                    "column": "price",
+                    "value":"REAL NOT NULL"
+                },
+                {
+                    "column": "active",
+                    "value":"INTEGER DEFAULT 1"
+                },
+                {
+                    "foreignkey": "id_recolector",
+                    "value": "REFERENCES recolectores(id)"
+                }
+                 
+            ],
+            "values":[
+                [
+                    1,
+                    "2024-07-09T16:00",
+                    "2024-07-09T19:00",
+                    1,
+                    15,
+                    1
+                ],
+                [
+                    2,
+                    "2024-07-10T16:00",
+                    "2024-07-10T19:00",
+                    1,
+                    15,
+                    1
+                ],
+                [
+                    3,
+                    "2024-07-11T16:00",
+                    "2024-07-11T19:00",
+                    1,
+                    15,
+                    1
+                ]
+                
+            ]
+        },
+        {
+            "name": "paymments",
+            "schema": [
+                {
+                    "column": "id",
+                    "value": "INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"
+                },
+                {
+                    "column": "date",
+                    "value": "TEXT"
+                },
+                {
+                    "column": "id_recoleccion",
+                    "value": "INTEGER NOT NULL"
+                },
+                {
+                    "column": "paid",
+                    "value": "REAL DEFAULT 0"
+                },
+                {
+                    "foreignkey": "id_recoleccion",
+                    "value": "REFERENCES recoleccion(id)"
+                }
+            ],
+            "values":[
+                [
+                    1,
+                    "2024-07-09T16:00",
+                    1,
+                    1
+                ],
+                [
+                    2,
+                    null,
+                    2,
+                    0
+                ],
+                [
+                    3,
+                    null,
+                    3,
+                    0
+                ]
+                
+            ]
+        }
+    ]
+    
+}
