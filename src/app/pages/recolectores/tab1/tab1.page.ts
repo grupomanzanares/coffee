@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Recolector } from 'src/app/models/recolector';
+import { AlertService } from 'src/app/services/alert.service';
 import { SqliteManagerService } from 'src/app/services/sqlite-manager.service';
 
 @Component({
@@ -10,26 +11,35 @@ import { SqliteManagerService } from 'src/app/services/sqlite-manager.service';
 export class Tab1Page implements OnInit {
 
   public collector: Recolector[];
+  public recolector: Recolector;  
   public showForm: boolean;
-  public name: string;
-  public surname: string;
-  public email: string;
-  public phone: string;
+  public update: boolean;
+
   // public data = [];
-  // public recolector: Recolector;
 
-  constructor(private sqliteService: SqliteManagerService ) {
+  
+  constructor(public sqliteService: SqliteManagerService, private alertService: AlertService) {
     this.showForm = false;
+    this.update = false;
   }
-
+  
   ngOnInit(): void {
+    this.sqliteService.getDocumentos();
+    this.sqliteService.getBancos();
+    this.sqliteService.getContratos();
     this.getRecolectores();
+    if (!this.recolector) {
+      this.recolector = new Recolector();
+    }else{
+      this.update = true; 
+    }
   }
 
   getRecolectores(){
+    this.collector = [];
     this.sqliteService.getRecolectores().then((collector: Recolector[]) => {
       this.collector = collector;
-      console.log(this.collector)
+      console.log("recolectores: ", collector)
     })
   }
 
@@ -38,10 +48,13 @@ export class Tab1Page implements OnInit {
   }
 
   onCloseForm(){
+    this.update = false;
+    this.recolector = new Recolector();
     this.showForm = false;
   }
 
   searchCollectors($event){
+    
     console.log($event.detail.value);
     this.sqliteService.getRecolectores($event.detail.value).then((collector: Recolector[])=>{
       this.collector = collector;
@@ -49,6 +62,47 @@ export class Tab1Page implements OnInit {
   }
 
   createUpdateCollectors(){
+    if (this.update) {
+      this.sqliteService.updateCollector(this.recolector).then(()=>{
+        this.alertService.alertMenssage('Exito', 'Datos actualizados con exito')
+        this.update = false;
+        this.recolector = null;
+        this.getRecolectores();  
+      }).catch(e =>{
+        console.log(e)
+        this.alertService.alertMenssage(e, JSON.stringify(e))
+      })
+    }else{
+      this.sqliteService.createRecolector(this.recolector).then((recolector) =>{
+        console.log(recolector)
+        this.alertService.alertMenssage('Exito', 'Recolector agregado correctamente');
+        this.getRecolectores(); 
+      }).catch(e =>{
+        this.alertService.alertMenssage('Error', JSON.stringify(e))
+      })
+    }
+    this.onCloseForm();
+  }
 
+  updateCollector(recolector: Recolector){
+    this.recolector = recolector;
+    this.update = true;
+    this.onShowForm();
+  }
+
+  deleteCollectorConfirm(recolector: Recolector){
+    const selft = this;
+    this.alertService.alertConfirm("¿Seguro?", `¿Estas seguro de eliminar al recolector ${recolector.nombre1} ${recolector.apellido1}?`, function(){
+      selft.deleteRecolector(recolector)    
+    })
+  }
+
+  deleteRecolector(recolector : Recolector){
+    this.sqliteService.deleteRecolector(recolector).then (() => {
+      this.alertService.alertMenssage('Exito', 'Estudiante eliminado');
+      this.getRecolectores();
+    }).catch(e =>{
+      this.alertService.alertMenssage('Error', JSON.stringify(e))
+    })
   }
 }

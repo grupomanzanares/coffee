@@ -18,41 +18,144 @@
     <div *ngIf="!showForm">
       <ion-row>
         <ion-col>
-          <ion-searchbar placeholder="Buscar" color="light" [debounce]="300" (ionInput)="searchCollectors($event)"></ion-searchbar>
+          <ion-searchbar placeholder="Buscar" color="light" [debounce]="400" (ionInput)="searchCollectors($event)"></ion-searchbar>
         </ion-col>
       </ion-row>
   
       <ion-row *ngFor="let row of collector">
         <ion-col>
-          <ion-item>
-            {{ row.name}}, {{ row.surname}}
-          </ion-item>
+          <ion-item-sliding>
+            <ion-item>
+              {{ row.nombre}} {{ row.apellido1}} {{ sqliteService.getBancoName(row.banco) }} {{ row.cuenta_bancaria}} {{ sqliteService.getDocumentoName(row.tipo_Identificacion) }}  {{ sqliteService.getContratosName(row.tipo_Contrato) }}
+            </ion-item>
+            <ion-item-options side="end">
+              <ion-item-option color="warning" (click)="updateCollector(row)">
+                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+              <ion-item-option color="danger" (click)="deleteCollectorConfirm(row)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
         </ion-col>
       </ion-row>
     </div>
 
+    <div class="ion-text-center">
+      <ion-row *ngIf="showForm" class="ion-margin" style="justify-content: center; align-items: center; display: flex;">
+        <form (ngSubmit)="createUpdateCollectors()">
+          <!-- Nombre y Apellidos en la misma fila -->
+          <ion-row>
+            <!-- Nombre -->
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Nit" name="nit" label-placement="floating" fill="outline" type="text" [(ngModel)]="recolector.nit" required></ion-input>
+              </ion-item>
+            </ion-col>
 
-    <ion-row *ngIf="showForm" class="ion-margin">
-      <form (ngSubmit)="createUpdateCollectors()">
-        <ion-item>
-          <ion-input class="ion-margin" label="Nombre" name="name" label-placement="floating" fill="outline" placeholder="Enter text" type="text" [(ngModel)]="name"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-input class="ion-margin" label="Apellidos" name="surname" label-placement="floating" fill="outline" type="text" [(ngModel)]="surname"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-input class="ion-margin" label="Correo" name="email" label-placement="floating" fill="outline" type="email" [(ngModel)]="email"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-input class="ion-margin" label="Telefono" name="phone" label-placement="floating" fill="outline" type="phone" [(ngModel)]="phone"></ion-input>
-        </ion-item>
-
-        <ion-button class="ion-margin" expand="block" type="submit" (click)="onCloseForm()">Guardar</ion-button>
-      </form>
-    </ion-row>
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Nombre" name="nombre" label-placement="floating" fill="outline" type="text" [(ngModel)]="recolector.nombre" required></ion-input>
+              </ion-item>
+            </ion-col>
+    
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Primer Nombre" name="nombre1" label-placement="floating" fill="outline" type="text" [(ngModel)]="recolector.nombre1" required></ion-input>
+              </ion-item>
+            </ion-col>
+    
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Segundo Nombre" name="nombre2" label-placement="floating" fill="outline" type="text" [(ngModel)]="recolector.nombre2"></ion-input>
+              </ion-item>
+            </ion-col>
+    
+            <!-- Apellidos -->
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Primer Apellido" name="apellido1" label-placement="floating" fill="outline" type="text" [(ngModel)]="recolector.apellido1" required></ion-input>
+              </ion-item>
+            </ion-col>
+    
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Segundo Apellido" name="apellido2" label-placement="floating" fill="outline" type="text" [(ngModel)]="recolector.apellido2" required></ion-input>
+              </ion-item>
+            </ion-col>
+    
+            <!-- Correo -->
+            <!-- <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Correo" name="email" label-placement="floating" fill="outline" type="email" [(ngModel)]="recolector.email" required></ion-input>
+              </ion-item>
+            </ion-col> -->
+    
+            <!-- Teléfono -->
+            <!-- <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Teléfono" name="phone" label-placement="floating" fill="outline" type="tel" [(ngModel)]="recolector.phone" required></ion-input>
+              </ion-item>
+            </ion-col> -->
+            
+            <!-- Observaciones -->
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Observaciones" name="observacion" label-placement="floating" fill="outline" type="text" [(ngModel)]="recolector.observacion" required></ion-input>
+              </ion-item>
+            </ion-col>
+    
+            <!-- Cuenta de banco -->
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Cuenta de banco" name="cuenta_bancaria" label-placement="floating" fill="outline" type="text" [(ngModel)]="recolector.cuenta_bancaria" required></ion-input>
+              </ion-item>
+            </ion-col>
+            
+            <!-- Tipo de Identificación -->
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item class="ion-margin">
+                <ion-select [(ngModel)]="recolector.tipo_Identificacion" name="tipo_Identificacion" placeholder="Seleciona el tipo de documento" interface="popover">
+                  <ion-select-option  *ngFor="let documento of sqliteService.documentos" [value]="documento.id">
+                    {{ documento.name }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+         
+            <!-- Banco -->
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item class="ion-margin">
+                <ion-select [(ngModel)]="recolector.banco" name="banco" placeholder="Selecciona tu banco" interface="popover">
+                  <ion-select-option *ngFor="let banco of sqliteService.bancos" [value]="banco.id">
+                    {{ banco.name }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            
+    
+            <!-- Tipo de Contrato -->
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item class="ion-margin">
+                <ion-select [(ngModel)]="recolector.tipo_Contrato" name="tipo_Contrato" placeholder="Selecciona tu tipo de contrato" interface="popover">
+                  <ion-select-option *ngFor="let contrato of sqliteService.contratos" [value]="contrato.id">
+                    {{ contrato.name }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+    
+          <!-- Botones -->
+          <div>
+            <ion-button class="ion-margin" expand="block" type="submit">{{ update ? 'Actualizar recolector' : 'Agregar recolector' }}</ion-button>
+            <ion-button class="ion-margin" expand="block" color="danger" (click)="onCloseForm()">Volver</ion-button>
+          </div>
+        </form>
+      </ion-row>
+    </div>
+    
   </ion-grid>
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="!showForm">
