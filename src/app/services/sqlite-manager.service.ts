@@ -8,6 +8,8 @@ import { AlertController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { Recolector } from '../models/recolector';
 import { Statement } from '@angular/compiler';
+import { Recoleccion } from '../models/recoleccion';
+import { query } from '@angular/animations';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +24,8 @@ export class SqliteManagerService {
   documentos: { id: number, name: string }[] = [];
   bancos: { id: number, name: string }[] = [];
   contratos: {id: number, name: string} [] = [];
+  fincas:{id: string, name: string, lotes: number} [] = [];
+  recolec:{nit: number, nombre1: string, apellido1: string} [] = [];
 
   constructor(private alertCtrl: AlertController, private http: HttpClient) {
     this.isWeb = false;
@@ -159,7 +163,7 @@ export class SqliteManagerService {
     })
   }
   
-   async updateCollector(recolector: Recolector){
+  async updateCollector(recolector: Recolector){
     let sql = 'UPDATE recolectores SET tipo_Identificacion=?, nombre=?, nombre1=?, nombre2=?, apellido1=?, apellido2=?, tipo_Contrato=?, observacion=?, banco=?, cuenta_bancaria=? WHERE nit = ?';
     const db = await this.getDbName();
 
@@ -267,5 +271,101 @@ export class SqliteManagerService {
   getContratosName(contratoId: number): string{
     const contrato = this.contratos.find(b => b.id === contratoId);
     return contrato ? contrato.name : 'Contrato desconocido desconocido';
+  }
+
+    // Recolecion --------------------------------------------------------------------//
+
+  async getRecoleccion(){
+    let sql = 'SELECT * FROM recoleccion WHERE active = 1'
+
+    const db = await this.getDbName();
+    return CapacitorSQLite.query({
+      database: db,
+      statement: sql,
+      values: []
+    }).then((response: capSQLiteValues)=>{
+      let recolecciones : Recoleccion[] = [];
+      for (let index = 0; index < response.values.length; index++) {
+        const row = response.values[index];
+        const recoleccion = row as Recoleccion;
+        recolecciones.push(recoleccion)
+      }
+      return Promise.resolve(recolecciones);
+    }).catch(e => Promise.reject(e))
+  }
+
+  
+  async getFincas(){
+    const db = await this.getDbName(); 
+    const query = 'SELECT id, name, lotes FROM finca'; 
+    
+    CapacitorSQLite.query({
+      database: db,
+      statement: query
+    }).then((result) => {
+      this.fincas = result.values;
+    }).catch((error) => {
+      console.error('Error fetching banks:', error);
+    });
+  }
+  
+  getFincaName(fincaId: string): string {
+    const finca = this.fincas.find(fin => fin.id === fincaId);
+    return finca ? finca.name : 'Nombre de finca desconocida';
+  }
+  
+  getFincaLote(fincaId: string): number {
+    const lotes = this.fincas.find(lot => lot.id === fincaId);
+    return lotes ? lotes.lotes: 0
+  }
+
+  async getrecolectores(){
+    const db = await this.getDbName(); 
+    let sql = 'SELECT nit, nombre1, apellido1 FROM recolectores WHERE active = 1'
+
+    CapacitorSQLite.query({
+      database: db,
+      statement: sql
+    }).then((result) => {
+      this.recolec = result.values;
+    }).catch((error) => {
+      console.error(error)
+    });
+  }
+
+  getRecolecName(recolectorId: string): string {
+    const recolector = this.recolec.find(rec => rec.nit === Number (recolectorId));
+    return recolector ? recolector.nombre1 : 'Nombre desconocido'
+  }
+
+  async createRecoleccion(recoleccion: Recoleccion){
+    let sql = 'INSERT INTO recoleccion (id, cosechaId, nit_recolectores, fecha, finca, variedad, tipoRecoleccion, cantidad, vlrRecoleccion, observacion, fecRegistro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    const db = await this.getDbName();
+    return CapacitorSQLite.executeSet({
+      database: db,
+      set: [
+        {
+          statement: sql,
+          values: [
+            recoleccion.id,                             
+            Number(recoleccion.cosechaId),               
+            Number(recoleccion.nit_recolectores),        
+            recoleccion.fecha,                          
+            recoleccion.finca.toString(),                
+            Number(recoleccion.variedad),                
+            recoleccion.tipoRecoleccion,                
+            Number(recoleccion.cantidad),                
+            Number(recoleccion.vlrRecoleccion),          
+            recoleccion.observacion,                    
+            recoleccion.fecRegistro
+          ]
+        }
+      ]
+    }).then((changes: capSQLiteChanges) =>{
+      if(this.isWeb){
+        CapacitorSQLite.saveToStore({database: db})
+      }
+      return changes;
+    })
   }
 }

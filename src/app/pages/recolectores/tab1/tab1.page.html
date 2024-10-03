@@ -26,7 +26,7 @@
         <ion-col>
           <ion-item-sliding>
             <ion-item>
-              {{ row.nombre}} {{ row.apellido1}} {{ sqliteService.getBancoName(row.banco) }} {{ row.cuenta_bancaria}} {{ sqliteService.getDocumentoName(row.tipo_Identificacion) }}  {{ sqliteService.getContratosName(row.tipo_Contrato) }}
+              {{ row.nombre}} {{ row.apellido1}} 
             </ion-item>
             <ion-item-options side="end">
               <ion-item-option color="warning" (click)="updateCollector(row)">
@@ -34,6 +34,9 @@
               </ion-item-option>
               <ion-item-option color="danger" (click)="deleteCollectorConfirm(row)">
                 <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+              <ion-item-option>
+                <ion-icon name="add-outline" slot="icon-only"></ion-icon>
               </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
@@ -44,9 +47,7 @@
     <div class="ion-text-center">
       <ion-row *ngIf="showForm" class="ion-margin" style="justify-content: center; align-items: center; display: flex;">
         <form (ngSubmit)="createUpdateCollectors()">
-          <!-- Nombre y Apellidos en la misma fila -->
           <ion-row>
-            <!-- Nombre -->
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item>
                 <ion-input class="ion-margin" label="Nit" name="nit" label-placement="floating" fill="outline" type="text" [(ngModel)]="recolector.nit" required></ion-input>
@@ -105,10 +106,21 @@
               </ion-item>
             </ion-col>
     
+            <!-- Banco -->
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item class="ion-margin">
+                <ion-select [(ngModel)]="recolector.banco" name="banco" placeholder="Selecciona tu banco" interface="popover">
+                  <ion-select-option *ngFor="let banco of sqliteService.bancos" [value]="banco.id">
+                    {{ banco.name }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+
             <!-- Cuenta de banco -->
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item>
-                <ion-input class="ion-margin" label="Cuenta de banco" name="cuenta_bancaria" label-placement="floating" fill="outline" type="text" [(ngModel)]="recolector.cuenta_bancaria" required></ion-input>
+                <ion-input class="ion-margin" label="Numero de cuenta bancaria" name="cuenta_bancaria" label-placement="floating" fill="outline" type="text" [(ngModel)]="recolector.cuenta_bancaria" pattern="^[0-9]*$" minlength="8" maxlength="10" required></ion-input>
               </ion-item>
             </ion-col>
             
@@ -121,19 +133,7 @@
                   </ion-select-option>
                 </ion-select>
               </ion-item>
-            </ion-col>
-         
-            <!-- Banco -->
-            <ion-col size="12" size-md="6" size-lg="4">
-              <ion-item class="ion-margin">
-                <ion-select [(ngModel)]="recolector.banco" name="banco" placeholder="Selecciona tu banco" interface="popover">
-                  <ion-select-option *ngFor="let banco of sqliteService.bancos" [value]="banco.id">
-                    {{ banco.name }}
-                  </ion-select-option>
-                </ion-select>
-              </ion-item>
-            </ion-col>
-            
+            </ion-col>            
     
             <!-- Tipo de Contrato -->
             <ion-col size="12" size-md="6" size-lg="4">

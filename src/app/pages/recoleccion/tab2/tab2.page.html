@@ -8,4 +8,127 @@
 
 <ion-content [fullscreen]="true">
 
+  <ion-grid class="ion-margin-top ion-padding">
+    <div *ngIf="!showForm">
+      <ion-row>
+        <ion-col>
+          <!-- <ion-searchbar placeholder="Buscar" color="light" [debounce]="400" (ionInput)="searchRecoleccion($event)"></ion-searchbar> -->
+        </ion-col>
+      </ion-row>
+  
+      <ion-row *ngFor="let row of recoleccion">
+        <ion-col>
+          <ion-item>
+            {{ row.recolector?.nombre }} {{ row.recolector?.apellido1 }}, Lote: {{ row.lote }} | {{ row.fecRegistro | date: 'dd MM yyyy'}}
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </div>
+    
+    <div *ngIf="showForm">
+      <ion-row class="ion-margin" style="justify-content: center; align-items: center; display: flex;">
+        <form (ngSubmit)="creaateRecoleccion()">
+          <ion-row>
+
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Cosecha" name="cosechaId" label-placement="floating" fill="outline" type="text" [(ngModel)]="objRecoleccion.cosechaId" [value]="currentYear" [readonly]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Fecha de recoleccion" name="fecha" label-placement="floating" fill="outline" type="text" [(ngModel)]="objRecoleccion.fecha" [value]="currentDate" [readonly]="true"></ion-input>
+              </ion-item>
+            </ion-col>
+
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item class="ion-margin">
+                <ion-select [(ngModel)]="objRecoleccion.nit_recolectores" name="nit_recolectores" placeholder="Selecciona un recolector" interface="popover" (ionChange)="validarNitRecolector($event)">
+                  <ion-select-option *ngFor="let recolector of sqliteService.recolec" [value]="recolector.nit">
+                    {{ recolector.nombre1 }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item class="ion-margin">
+                <ion-select [(ngModel)]="objRecoleccion.finca" name="finca" placeholder="Selecciona la finca" interface="popover" (ionChange)="onFincaChange($event)">
+                  <ion-select-option *ngFor="let finca of sqliteService.fincas" [value]="finca.id">
+                    {{ finca.name }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>
+            
+            <!-- Nuevo ion-select para mostrar los lotes -->
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item class="ion-margin">
+                <ion-select [(ngModel)]="objRecoleccion.lote" name="lote" placeholder="Selecciona el lote" interface="popover">
+                  <ion-select-option *ngFor="let lote of lotesDisponibles" [value]="lote">
+                    {{ lote }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-col>           
+
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input 
+                  class="ion-margin" label="ID" name="id" label-placement="floating" fill="outline" type="text" [(ngModel)]="objRecoleccion.id" [ngModelOptions]="{standalone: true}" [readonly]="true">
+                </ion-input>
+              </ion-item>
+            </ion-col>
+            
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item class="ion-margin">
+                <ion-select placeholder="Tipo de recoleccion" interface="popover" [(ngModel)]="objRecoleccion.tipoRecoleccion" name="tipoRecoleccion">
+                  <ion-select-option value="Kg">KG</ion-select-option>
+                  <ion-select-option value="Jor">JOR</ion-select-option>
+                </ion-select>                
+              </ion-item>
+            </ion-col>
+       
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Variedad" name="variedad" label-placement="floating" fill="outline" type="number" required [(ngModel)]="objRecoleccion.variedad" (ionInput)="validarVariedad($event)"></ion-input>
+              </ion-item>
+            </ion-col>
+            
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Cantidad" name="cantidad" label-placement="floating" fill="outline" type="number" [(ngModel)]="objRecoleccion.cantidad" required></ion-input>
+              </ion-item>
+            </ion-col>
+
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-range class="ion-margin" label="Precio" name="vlrRecoleccion" [min]="preMin" [max]="preMax" *ngIf="objRecoleccion" [(ngModel)]="objRecoleccion.vlrRecoleccion"></ion-range>
+                <ion-text>$ {{ objRecoleccion.vlrRecoleccion }}</ion-text>
+              </ion-item>
+            </ion-col>
+
+            <ion-col size="12" size-md="6" size-lg="4">
+              <ion-item>
+                <ion-input class="ion-margin" label="Observacion" name="observacion" label-placement="floating" fill="outline" type="text" [(ngModel)]="objRecoleccion.observacion" required></ion-input>
+              </ion-item>
+            </ion-col>
+
+          </ion-row>
+        </form>
+      </ion-row>
+
+      <ion-button class="ion-margin" expand="block" color="danger" (click)="onCloseForm()">Volver</ion-button>
+      <ion-button class="ion-margin" expand="block" (click)="creaateRecoleccion()">{{ update ? 'Actualizar Recoleccion' : 'Agregar Recoleccion' }}</ion-button>
+
+    </div>
+  </ion-grid>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end" *ngIf="!showForm">
+    <ion-fab-button (click)="onShowForm()" size="small" color="success">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

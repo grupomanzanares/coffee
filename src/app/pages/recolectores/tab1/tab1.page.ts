@@ -81,7 +81,7 @@ export class Tab1Page implements OnInit {
         this.alertService.alertMenssage('Error', JSON.stringify(e))
       })
     }
-    this.onCloseForm();
+    this.onCloseForm(); 
   }
 
   updateCollector(recolector: Recolector){

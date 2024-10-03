@@ -1,121 +1,106 @@
 {
-    "database": "coffee.db",
-    "version": 1,
-    "encrypted": false,
-    "mode": "full",
-    "tables": [
+  "database": "coffee.db",
+  "version": 1,
+  "encrypted": false,
+  "mode": "full",
+  "tables": [
+    {
+      "name": "tp_identificacion",
+      "schema": [
+        { "column": "id", "value": "INTEGER NOT NULL PRIMARY KEY" },
+        { "column": "name", "value": "TEXT NOT NULL" }
+      ],
+      "values": [
+        [1, "DNI"],
+        [2, "Pasaporte"],
+        [3, "Licencia de Conducir"]
+      ]
+    },
+    {
+      "name": "tp_contrato",
+      "schema": [
+        { "column": "id", "value": "INTEGER NOT NULL PRIMARY KEY" },
+        { "column": "name", "value": "TEXT NOT NULL" }
+      ],
+      "values": [
+        [1, "Nomina"],
+        [2, "Contratista"]
+      ]
+    },
+    {
+      "name": "bancos",
+      "schema": [
+        { "column": "id", "value": "INTEGER NOT NULL PRIMARY KEY" },
+        { "column": "name", "value": "TEXT NOT NULL" }
+      ],
+      "values": [
+        [1, "Nequi"],
+        [2, "Davivienda"],
+        [3, "Bancolombia"]
+      ]
+    },
+    {
+      "name": "recolectores",
+      "schema": [
+        {"column": "nit", "value": "INTEGER NOT NULL PRIMARY KEY"},
+        {"column": "tipo_Identificacion", "value": "INTEGER NOT NULL"},
+        {"column": "nombre", "value": "TEXT NULL"},
+        {"column": "nombre1", "value": "TEXT NULL"},
+        {"column": "nombre2", "value": "TEXT NULL"},
         {
-            "name": "tp_identificacion",
-            "schema": [
-                { "column": "id", "value": "INTEGER NOT NULL PRIMARY KEY" },
-                { "column": "name", "value": "TEXT NOT NULL" }
-            ],
-            "values": [
-                [1, "DNI"],
-                [2, "Pasaporte"],
-                [3, "Licencia de Conducir"]
-            ]
+          "column": "apellido1",
+          "value": "TEXT NULL"
         },
         {
-            "name": "tp_contrato",
-            "schema": [
-                { "column": "id", "value": "INTEGER NOT NULL PRIMARY KEY" },
-                { "column": "name", "value": "TEXT NOT NULL" }
-            ],
-            "values": [
-                [1, "Nomina"],
-                [2, "Contratista"]
-            ]
+          "column": "apellido2",
+          "value": "TEXT NULL"
         },
         {
-            "name": "bancos",
-            "schema": [
-                { "column": "id", "value": "INTEGER NOT NULL PRIMARY KEY" },
-                { "column": "name", "value": "TEXT NOT NULL" }
-            ],
-            "values": [
-                [1, "Nequi"],
-                [2, "Davivienda"],
-                [3, "Bancolombia"]
-            ]
+          "column": "rut",
+          "value": "INTEGER DEFAULT 1"
         },
         {
-            "name": "recolectores",
-            "schema": [
-              {
-                "column": "nit",
-                "value": "INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT"
-              },
-              {
-                "column": "tipo_Identificacion",
-                "value": "INTEGER NOT NULL"
-              },
-              {
-                "column": "nombre",
-                "value": "TEXT NULL"
-              },
-              {
-                "column": "nombre1",
-                "value": "TEXT NULL"
-              },
-              {
-                "column": "nombre2",
-                "value": "TEXT NULL"
-              },
-              {
-                "column": "apellido1",
-                "value": "TEXT NULL"
-              },
-              {
-                "column": "apellido2",
-                "value": "TEXT NULL"
-              },
-              {
-                "column": "rut",
-                "value": "INTEGER DEFAULT 1"
-              },
-              {
-                "column": "active",
-                "value": "INTEGER DEFAULT 1"
-              },
-              {
-                "column": "tipo_Contrato",
-                "value": "INTEGER NOT NULL"
-              },
-              {
-                "column": "observacion",
-                "value": "TEXT NULL"
-              },
-              {
-                "column": "banco",
-                "value": "INTEGER NOT NULL"
-              },
-              {
-                "column": "cuenta_bancaria",
-                "value": "TEXT NULL"
-              },
-              {
-                "column": "usuario",
-                "value": "TEXT NULL"
-              },
-              {
-                "column": "fec_registro",
-                "value": "TEXT NULL"
-              },
-              {
-                "foreignkey": "tipo_Identificacion",
-                "value": "REFERENCES tp_identificacion(id)"
-              },
-              {
-                "foreignkey": "tipo_Contrato",
-                "value": "REFERENCES tp_contrato(id)"
-              },
-              {
-                "foreignkey": "banco",
-                "value": "REFERENCES bancos(id)"
-              }
-            ],
-            "values": [
+          "column": "active",
+          "value": "INTEGER DEFAULT 1"
+        },
+        {
+          "column": "tipo_Contrato",
+          "value": "INTEGER NOT NULL"
+        },
+        {
+          "column": "observacion",
+          "value": "TEXT NULL"
+        },
+        {
+          "column": "banco",
+          "value": "INTEGER NOT NULL"
+        },
+        {
+          "column": "cuenta_bancaria",
+          "value": "TEXT NULL"
+        },
+        {
+          "column": "usuario",
+          "value": "TEXT NULL"
+        },
+        {
+          "column": "fec_registro",
+          "value": "TEXT NULL"
+        },
+        {
+          "foreignkey": "tipo_Identificacion",
+          "value": "REFERENCES tp_identificacion(id)"
+        },
+        {
+          "foreignkey": "tipo_Contrato",
+          "value": "REFERENCES tp_contrato(id)"
+        },
+        {
+          "foreignkey": "banco",
+          "value": "REFERENCES bancos(id)"
+        }
+      ],
+      "values": [
               [
                 "1",
                 1,
@@ -167,8 +152,119 @@
                 "user3",
                 "2024-01-01T12:00:00"
               ]
-            ]
-        }
-    ]
+      ]
+    },
+    {
+      "name": "cosecha",
+      "schema": [
+            { "column": "id", "value": "INTEGER NOT NULL PRIMARY KEY" },
+            { "column": "name", "value": "TEXT NOT NULL" }
+      ],
+      "values": [
+            [1, "Cacao"],
+            [2, "Cafe"]
+      ]
+    },
+    {
+      "name": "tipoRecoleccion",
+      "schema": [
+          {"column": "id", "value": "INTEGER NOT NULL PRIMARY KEY"},
+          {"column": "name", "value": "TEXT NOT NULL"}
+      ],
+      "values": [
+          [1, "Kg"],
+          [2, "Jor"]
+      ]
+    },
+    {
+      "name": "finca",
+      "schema": [
+        {"column": "id", "value": "TEXT NOT NULL PRIMARY KEY"},
+        {"column": "name", "value": "TEXT NOT NULL"},
+        {"column": "lotes", "value":"INTEGER NULL"} 
+      ],
+      "values": [
+        ["ss", "San Sebastian", 10],
+        ["lm", "La Montaña", 8],
+        ["vp", "Valle del Paraíso", 15]
+      ]
+    },   
+    {
+      "name": "recoleccion",
+      "schema": [
+        {"column": "id", "value":"INTEGER NOT NULL PRIMARY KEY"},
+        {"column": "cosechaId", "value":"INTEGER NOT NULL"},
+        {"column": "nit_recolectores", "value":"INTEGER NOT NULL"},
+        {"column": "fecha", "value": "TEXT NULL"},
+        {"column": "finca", "value":"TEXT NOT NULL"},
+        {"column": "variedad", "value": "INTEGER NULL"},
+        {"column": "tipoRecoleccion", "value":"TEXT NOT NULL"},
+        {"column": "cantidad", "value": "INTEGER NULL"},
+        {"column": "vlrRecoleccion", "value":"INTEGER NULL"},
+        {"column": "observacion", "value": "TEXT NULL"},
+        {"column": "usuario", "value": "TEXT NULL"},
+        {"column": "fecRegistro", "value": "TEXT NULL"},
+        {"column": "usuarioMod", "value": "TEXT NULL"},
+        {"column": "fecRegistroMod", "value": "TEXT NULL"},
+        {"column": "active", "value": "INTEGER DEFAULT 1"},
+        {"foreignkey": "cosechaId", "value": "REFERENCES cosecha(id)"},
+        {"foreignkey": "nit_recolectores", "value": "REFERENCES recolectores(nit)"},
+        {"foreignkey": "tipoRecoleccion", "value": "REFERENCES tipoRecoleccion(id)"},
+        {"foreignkey": "finca", "value": "REFERENCES finca(id)"}
+      ],
+      "values": [
+        [
+          1,
+          1,
+          1,
+          "2024-10-01",
+          "ss",
+          1,
+          1,
+          100,
+          50000,
+          "ninguna",
+          "user2",
+          "2024-10-01",
+          "user2",
+          "2024-10-03",
+          1
+        ],
+        [
+          2,
+          2,
+          2,
+          "2024-10-02",
+          "lm",
+          2,
+          2,
+          150,
+          60000,
+          "sin observación",
+          "user3",
+          "2024-10-02",
+          "user3",
+          "2024-10-04",
+          1
+        ],
+        [
+          3,
+          1,
+          3,
+          "2024-10-03",
+          "vp",
+          1,
+          1,
+          120,
+          55000,
+          "recolección manual",
+          "user1",
+          "2024-10-03",
+          "user1",
+          "2024-10-05",
+          1
+        ]
+      ]
+    }    
+  ]
 }
-  
