@@ -74,7 +74,7 @@ export class SqliteManagerService {
 
   downloadDataBase() {
     console.log("Iniciando descarga de base de datos...");
-    this.http.get<JsonSQLite>('assets/db/db2.json', { responseType: 'json' })
+    this.http.get<JsonSQLite>('assets/db/db.json', { responseType: 'json' })
       .pipe(
         map(async (jsonExport: JsonSQLite) => {
           console.log("Contenido de JSON cargado:", jsonExport); // <-- Nuevo log

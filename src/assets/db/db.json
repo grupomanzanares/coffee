@@ -105,15 +105,15 @@
     {
       "name": "recoleccion",
       "schema": [
-        {"column": "id", "value":"TEXT NOT NULL PRIMARY KEY"},
-        {"column": "cosechaId", "value":"INTEGER NOT NULL"},
-        {"column": "nit_recolectores", "value":"INTEGER NOT NULL"},
+        {"column": "id", "value": "TEXT NOT NULL PRIMARY KEY"},
+        {"column": "cosechaId", "value": "INTEGER NOT NULL"},
+        {"column": "nit_recolectores", "value": "INTEGER NOT NULL"},
         {"column": "fecha", "value": "TEXT NULL"},
-        {"column": "finca", "value":"TEXT NOT NULL"},
+        {"column": "finca", "value": "TEXT NOT NULL"},
         {"column": "variedad", "value": "INTEGER NULL"},
-        {"column": "tipoRecoleccion", "value":"TEXT NOT NULL"},
+        {"column": "tipoRecoleccion", "value": "INTEGER NOT NULL"}, 
         {"column": "cantidad", "value": "INTEGER NULL"},
-        {"column": "vlrRecoleccion", "value":"INTEGER NULL"},
+        {"column": "vlrRecoleccion", "value": "INTEGER NULL"},
         {"column": "observacion", "value": "TEXT NULL"},
         {"column": "usuario", "value": "TEXT NULL"},
         {"column": "fecRegistro", "value": "TEXT NULL"},
@@ -125,12 +125,7 @@
         {"foreignkey": "nit_recolectores", "value": "REFERENCES recolectores(nit)"},
         {"foreignkey": "tipoRecoleccion", "value": "REFERENCES tipoRecoleccion(id)"},
         {"foreignkey": "finca", "value": "REFERENCES finca(id)"}
-      ],
-      "values": [
-        [1, 1, 1, "2024-10-01", "ss", 1, 1, 100, 50000, "ninguna", "user2", "2024-10-01", "user2", "2024-10-03", 1],
-        [2, 2, 2, "2024-10-02", "lm", 2, 2, 150, 60000, "sin observación", "user3", "2024-10-02", "user3", "2024-10-04", 1],
-        [3, 1, 3, "2024-10-03", "vp", 1, 1, 120, 55000, "recolección manual", "user1", "2024-10-03", "user1", "2024-10-05", 1]
       ]
-    }    
+    }
   ]
 }
