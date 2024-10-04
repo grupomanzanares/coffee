@@ -10,6 +10,8 @@ import { Recolector } from '../models/recolector';
 import { Statement } from '@angular/compiler';
 import { Recoleccion } from '../models/recoleccion';
 import { query } from '@angular/animations';
+import { catchError, map } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +28,7 @@ export class SqliteManagerService {
   contratos: {id: number, name: string} [] = [];
   fincas:{id: string, name: string, lotes: number} [] = [];
   recolec:{nit: number,nombre: string, nombre1: string, apellido1: string} [] = [];
+  cosechas:{id: number, name: string} [] = [];
 
   constructor(private alertCtrl: AlertController, private http: HttpClient) {
     this.isWeb = false;
@@ -69,29 +72,42 @@ export class SqliteManagerService {
     }
   }
 
-  downloadDataBase(){
+  downloadDataBase() {
     console.log("Iniciando descarga de base de datos...");
-    this.http.get('assets/db/db.json').subscribe(async(jsonExport: JsonSQLite) =>{
-      const jsonString = JSON.stringify(jsonExport);
-      console.log("JSON Exportado:", jsonString);
-      const isValid = await CapacitorSQLite.isJsonValid({jsonstring: jsonString});
-      console.log("Validación de JSON:", isValid.result);
-      if (isValid.result){
-        this.dbName = jsonExport.database;
-        await CapacitorSQLite.importFromJson({jsonstring: jsonString});
-        console.log("Importación completada");
-        await CapacitorSQLite.createConnection({database: this.dbName});
-        await CapacitorSQLite.open({database: this.dbName});
-  
-        await Preferences.set({key: this.DB_SETUP_KEY, value: '1'});
-        await Preferences.set({key: this.DB_NAME_KEY, value: this.dbName});
-        console.log("Base de datos lista");
-        this.dbReady.next(true);
-      }else{
-        console.log("BD no valida");
-      }
-    })
+    this.http.get<JsonSQLite>('assets/db/db2.json', { responseType: 'json' })
+      .pipe(
+        map(async (jsonExport: JsonSQLite) => {
+          console.log("Contenido de JSON cargado:", jsonExport); // <-- Nuevo log
+          const jsonString = JSON.stringify(jsonExport);
+          console.log("JSON Exportado:", jsonString);
+          try {
+            const isValid = await CapacitorSQLite.isJsonValid({ jsonstring: jsonString });
+            console.log("Validación de JSON:", isValid.result);
+            if (isValid.result) {
+              this.dbName = jsonExport.database;
+              await CapacitorSQLite.importFromJson({ jsonstring: jsonString });
+              console.log("Importación completada");
+              await CapacitorSQLite.createConnection({ database: this.dbName });
+              await CapacitorSQLite.open({ database: this.dbName });
+              await Preferences.set({ key: this.DB_SETUP_KEY, value: '1' });
+              await Preferences.set({ key: this.DB_NAME_KEY, value: this.dbName });
+              console.log("Base de datos lista");
+              this.dbReady.next(true);
+            } else {
+              console.error("BD no valida");
+            }
+          } catch (error) {
+            console.error('Error durante la validación o importación de la base de datos:', error);
+          }
+        }),
+        catchError((error) => {
+          console.error('Error al cargar el archivo db.json:', error);
+          return of(null); // Retornar un observable nulo en caso de error
+        })
+      )
+      .subscribe();
   }
+  
 
 //   async resetDatabase() {
 //   const db = await this.getDbName();
@@ -333,13 +349,28 @@ export class SqliteManagerService {
     });
   }
 
-  getRecolecName(recolectorId: string): string {
-    const recolector = this.recolec.find(rec => rec.nit === Number (recolectorId));
-    return recolector ? recolector.nombre1 : 'Nombre desconocido'
+  // getRecolecName(recolectorId: string): string {
+  //   const recolector = this.recolec.find(rec => rec.nit === Number (recolectorId));
+  //   return recolector ? recolector.nombre1 : 'Nombre desconocido'
+  // }
+
+  async getCosechas() {
+    const db = await this.getDbName();
+    const query = 'SELECT id, name FROM cosecha';
+    
+    CapacitorSQLite.query({
+      database: db,
+      statement: query
+    }).then((result) => {
+      this.cosechas = result.values; // Guarda las `cosechas` para usar en el ion-select
+    }).catch((error) => {
+      console.error('Error al traer las cosechas:', error);
+    });
   }
+  
 
   async createRecoleccion(recoleccion: Recoleccion) {
-    let sql = 'INSERT INTO recoleccion (id, cosechaId, nit_recolectores, fecha, finca, variedad, tipoRecoleccion, cantidad, vlrRecoleccion, observacion, fecRegistro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    let sql = 'INSERT INTO recoleccion (id, cosechaId, nit_recolectores, fecha, finca, lote, variedad, tipoRecoleccion, cantidad, vlrRecoleccion, observacion, fecRegistro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     const db = await this.getDbName();
     return CapacitorSQLite.executeSet({
       database: db,
@@ -348,14 +379,15 @@ export class SqliteManagerService {
           statement: sql,
           values: [
             recoleccion.id,
-            recoleccion.cosechaId = Number(recoleccion.cosechaId),
-            recoleccion.nit_recolectores = Number(recoleccion.nit_recolectores),
+            recoleccion.cosechaId,
+            recoleccion.nit_recolectores,
             recoleccion.fecha,
             recoleccion.finca,
-            recoleccion.variedad = Number(recoleccion.variedad),
+            recoleccion.lote, 
+            recoleccion.variedad,
             recoleccion.tipoRecoleccion,
-            recoleccion.cantidad = Number(recoleccion.cantidad),
-            recoleccion.vlrRecoleccion = Number(recoleccion.vlrRecoleccion),
+            recoleccion.cantidad,
+            recoleccion.vlrRecoleccion,
             recoleccion.observacion,
             recoleccion.fecRegistro
           ]
@@ -367,11 +399,10 @@ export class SqliteManagerService {
       }
       return changes;
     }).catch((error) => {
-      // Aquí manejas el error si algo sale mal
       console.error('Error al insertar la recolección:', error);
-      // Lanzar o devolver el error si es necesario
       throw new Error('Error al insertar la recolección: ' + error.message);
     });
   }
+  
   
 }

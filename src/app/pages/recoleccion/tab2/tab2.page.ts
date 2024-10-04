@@ -14,7 +14,6 @@ export class Tab2Page implements OnInit {
 
   public recoleccion: Recoleccion[];
   public objRecoleccion: Recoleccion;
-  public recolectores: Recolector[];
   public showForm: boolean;
   public update: boolean;
   public currentYear: string;
@@ -40,13 +39,14 @@ export class Tab2Page implements OnInit {
 
   ngOnInit(): void {
     // console.log('ngOnInit started');
+    this.sqliteService.getCosechas();
     this.getRecoleccion();
     this.sqliteService.getFincas();
     this.sqliteService.getrecolectores();
     // console.log('ngOnInit - objRecoleccion:', this.objRecoleccion);
 
     // Asignar `currentYear` como número correctamente a `cosechaId`
-    this.objRecoleccion.cosechaId = parseInt(this.currentYear, 10); // Cambia esta línea
+    this.objRecoleccion.cosechaId = parseInt(this.currentYear, 10); 
     this.objRecoleccion.nit_recolectores = Number(this.objRecoleccion.nit_recolectores);
     this.objRecoleccion.variedad = Number(this.objRecoleccion.variedad);
     this.objRecoleccion.cantidad = Number(this.objRecoleccion.cantidad);
@@ -113,18 +113,13 @@ export class Tab2Page implements OnInit {
   }
 
   onFincaChange(event: any) {
-    const fincaId = event.detail.value; // Obtener el ID de la finca seleccionada
-    
-    // Validar que fincaId no sea NaN o undefined
+    const fincaId = event.detail.value;     
     if (!fincaId) {
       console.error('Finca seleccionada no es válida:', fincaId);
       return;
-    }
-  
+    } 
     console.log('Finca seleccionada:', fincaId);
-  
     const selectedFinca = this.sqliteService.fincas.find(finca => finca.id === fincaId);
-    
     // Si la finca tiene lotes, generar la lista de lotes como un arreglo de números
     if (selectedFinca && selectedFinca.lotes) {
       this.lotesDisponibles = Array.from({ length: selectedFinca.lotes }, (_, i) => i + 1);
@@ -132,7 +127,7 @@ export class Tab2Page implements OnInit {
       this.lotesDisponibles = []; // Si no hay lotes, dejar el arreglo vacío
     }
   
-    // Generar el ID de la recolección basado en la finca seleccionada
+
     this.generateRecoleccionId(fincaId);
   }
   
@@ -151,12 +146,17 @@ export class Tab2Page implements OnInit {
     }
   }
   
-  
+  onCosechaChange(event: any) {
+    const cosechaId = event.detail.value;
+    console.log('Cosecha seleccionada:', cosechaId);
+    // Asignar el valor al objeto de recolección
+    this.objRecoleccion.cosechaId = cosechaId;
+  } 
   
   tipoRecolecion(event: any) {
     const tipo = event.detail.value;
     console.log(tipo);
-    if (tipo === 'Kg') {
+    if (tipo === '1') {
       this.preMin = 10000;
       this.preMax = 50000;
     } else {
@@ -166,7 +166,6 @@ export class Tab2Page implements OnInit {
     console.log(this.preMin, this.preMax);
   }
   
-
   validarVariedad(event: any) {
     const value = event.detail.value; // cambia target por detail
     if (!isNaN(value)) {
@@ -186,7 +185,6 @@ export class Tab2Page implements OnInit {
       console.error('Error: el valor de nit_recolectores no es un número válido');
     }
   }
- 
 
   creaateRecoleccion() {
     try {

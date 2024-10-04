@@ -22,7 +22,7 @@ export class Recoleccion {
     nit_recolectores: number;     
     fecha: string;                
     finca: string;                
-    lote: string;                 
+    lote: number;                 
     variedad: number;             
     tipoRecoleccion: string; 
     cantidad: number;             

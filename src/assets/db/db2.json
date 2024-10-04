@@ -1,6 +1,6 @@
 {
   "database": "coffee.db",
-  "version": 1,
+  "version": 2,
   "encrypted": false,
   "mode": "full",
   "tables": [
@@ -62,31 +62,31 @@
         {"foreignkey": "banco", "value": "REFERENCES bancos(id)"}
       ],
       "values": [
-              [1, 1, "Miguel", null, null, "Chuil", null, 1, 1, 1, null, 1, "123456", "user1", "2024-01-01T12:00:00" ],
-              [2, 1, "Carlosss", null, null, "Duarte", null, 1, 1, 1, null, 1, "123457", "user2", "2024-01-01T12:00:00" ],
-              [3, 1, "samir", null, null, "Paez", null, 1, 1, 1, null, 1, "123458", "user3", "2024-01-01T12:00:00"]
+        [1, 1, "Miguel", null, null, "Chuil", null, 1, 1, 1, null, 1, "123456", "user1", "2024-01-01T12:00:00"],
+        [2, 1, "Carlosss", null, null, "Duarte", null, 1, 1, 1, null, 1, "123457", "user2", "2024-01-01T12:00:00" ],
+        [3, 1, "samir", null, null, "Paez", null, 1, 1, 1, null, 1, "123458", "user3", "2024-01-01T12:00:00"]
       ]
     },
     {
       "name": "cosecha",
       "schema": [
-            { "column": "id", "value": "INTEGER NOT NULL PRIMARY KEY" },
-            { "column": "name", "value": "TEXT NOT NULL" }
+        { "column": "id", "value": "INTEGER NOT NULL PRIMARY KEY" },
+        { "column": "name", "value": "TEXT NOT NULL" }
       ],
       "values": [
-            [1, "Cacao"],
-            [2, "Cafe"]
+        [1, "Cacao"],
+        [2, "Cafe"]
       ]
     },
     {
       "name": "tipoRecoleccion",
       "schema": [
-          {"column": "id", "value": "INTEGER NOT NULL PRIMARY KEY"},
-          {"column": "name", "value": "TEXT NOT NULL"}
+        {"column": "id", "value": "TEXT NOT NULL PRIMARY KEY"},
+        {"column": "name", "value": "TEXT NOT NULL"}
       ],
       "values": [
-          [1, "Kg"],
-          [2, "Jor"]
+        [1, "Kg"],
+        [2, "Jor"]
       ]
     },
     {
