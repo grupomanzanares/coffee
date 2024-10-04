@@ -25,7 +25,7 @@ export class SqliteManagerService {
   bancos: { id: number, name: string }[] = [];
   contratos: {id: number, name: string} [] = [];
   fincas:{id: string, name: string, lotes: number} [] = [];
-  recolec:{nit: number, nombre1: string, apellido1: string} [] = [];
+  recolec:{nit: number,nombre: string, nombre1: string, apellido1: string} [] = [];
 
   constructor(private alertCtrl: AlertController, private http: HttpClient) {
     this.isWeb = false;
@@ -321,7 +321,7 @@ export class SqliteManagerService {
 
   async getrecolectores(){
     const db = await this.getDbName(); 
-    let sql = 'SELECT nit, nombre1, apellido1 FROM recolectores WHERE active = 1'
+    let sql = 'SELECT nit, nombre, nombre1, apellido1 FROM recolectores WHERE active = 1'
 
     CapacitorSQLite.query({
       database: db,
@@ -338,8 +338,8 @@ export class SqliteManagerService {
     return recolector ? recolector.nombre1 : 'Nombre desconocido'
   }
 
-  async createRecoleccion(recoleccion: Recoleccion){
-    let sql = 'INSERT INTO recoleccion (id, cosechaId, nit_recolectores, fecha, finca, variedad, tipoRecoleccion, cantidad, vlrRecoleccion, observacion, fecRegistro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  async createRecoleccion(recoleccion: Recoleccion) {
+    let sql = 'INSERT INTO recoleccion (id, cosechaId, nit_recolectores, fecha, finca, variedad, tipoRecoleccion, cantidad, vlrRecoleccion, observacion, fecRegistro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     const db = await this.getDbName();
     return CapacitorSQLite.executeSet({
       database: db,
@@ -347,25 +347,31 @@ export class SqliteManagerService {
         {
           statement: sql,
           values: [
-            recoleccion.id,                             
-            Number(recoleccion.cosechaId),               
-            Number(recoleccion.nit_recolectores),        
-            recoleccion.fecha,                          
-            recoleccion.finca.toString(),                
-            Number(recoleccion.variedad),                
-            recoleccion.tipoRecoleccion,                
-            Number(recoleccion.cantidad),                
-            Number(recoleccion.vlrRecoleccion),          
-            recoleccion.observacion,                    
+            recoleccion.id,
+            recoleccion.cosechaId = Number(recoleccion.cosechaId),
+            recoleccion.nit_recolectores = Number(recoleccion.nit_recolectores),
+            recoleccion.fecha,
+            recoleccion.finca,
+            recoleccion.variedad = Number(recoleccion.variedad),
+            recoleccion.tipoRecoleccion,
+            recoleccion.cantidad = Number(recoleccion.cantidad),
+            recoleccion.vlrRecoleccion = Number(recoleccion.vlrRecoleccion),
+            recoleccion.observacion,
             recoleccion.fecRegistro
           ]
         }
       ]
-    }).then((changes: capSQLiteChanges) =>{
-      if(this.isWeb){
-        CapacitorSQLite.saveToStore({database: db})
+    }).then((changes: capSQLiteChanges) => {
+      if (this.isWeb) {
+        CapacitorSQLite.saveToStore({ database: db });
       }
       return changes;
-    })
+    }).catch((error) => {
+      // Aquí manejas el error si algo sale mal
+      console.error('Error al insertar la recolección:', error);
+      // Lanzar o devolver el error si es necesario
+      throw new Error('Error al insertar la recolección: ' + error.message);
+    });
   }
+  
 }

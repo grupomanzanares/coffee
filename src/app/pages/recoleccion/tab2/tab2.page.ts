@@ -21,7 +21,7 @@ export class Tab2Page implements OnInit {
   public currentDate: string;
   public lotesDisponibles: number[] = [];
   public preMin: number = 0;
-  public preMax: number = 100;
+  public preMax: number = 0;
 
   constructor(public sqliteService: SqliteManagerService, private alertService: AlertService) {
     this.showForm = false;
@@ -35,16 +35,15 @@ export class Tab2Page implements OnInit {
     this.currentDate = `${day}/${month}/${year}`;
     this.objRecoleccion = new Recoleccion();
     this.objRecoleccion.vlrRecoleccion = 0;
-    console.log('Constructor - objRecoleccion:', this.objRecoleccion);
   }
   
 
   ngOnInit(): void {
-    console.log('ngOnInit started');
+    // console.log('ngOnInit started');
     this.getRecoleccion();
     this.sqliteService.getFincas();
     this.sqliteService.getrecolectores();
-    console.log('ngOnInit - objRecoleccion:', this.objRecoleccion);
+    // console.log('ngOnInit - objRecoleccion:', this.objRecoleccion);
 
     // Asignar `currentYear` como número correctamente a `cosechaId`
     this.objRecoleccion.cosechaId = parseInt(this.currentYear, 10); // Cambia esta línea
@@ -54,12 +53,10 @@ export class Tab2Page implements OnInit {
     this.objRecoleccion.vlrRecoleccion = Number(this.objRecoleccion.vlrRecoleccion);  
     this.objRecoleccion.vlrRecoleccion = 0;
     this.objRecoleccion.fecha = this.currentDate; 
-}
-
-  
+  }
 
   getRecoleccion(){
-    console.log('Datos de recoleccion:', this.recoleccion);
+    // console.log('Datos de recoleccion:', this.recoleccion);
     Promise.all([
       this.sqliteService.getRecolectores(),
       this.sqliteService.getRecoleccion()
@@ -78,31 +75,23 @@ export class Tab2Page implements OnInit {
       console.error('Finca ID no válido:', fincaId);
       return;
     }
-
     const registrosFinca = this.recoleccion.filter(recoleccion => String(recoleccion.finca) === fincaId);
-    
-    // Validar que registrosFinca sea un array válido
-    if (!registrosFinca || registrosFinca.length === 0) {
-      console.error('No se encontraron registros de finca.');
+    const newNumber = registrosFinca.length + 1; 
+    const formattedNumber = String(newNumber).padStart(2, '0');
+
+    if (fincaId && formattedNumber) {
+      this.objRecoleccion.id = `${fincaId}${formattedNumber}`;
+    } else {
+      console.error('Error generando ID:', { fincaId, formattedNumber });
       return;
     }
-  
-    const newNumber = registrosFinca.length + 1; // Obtener el número siguiente
-    const formattedNumber = String(newNumber).padStart(2, '0'); // Formatear el número con dos dígitos (e.g., "01", "02")
-    
-    // Validar que el ID generado no sea NaN
-    // Concatenar los valores como string y luego convertirlos a number
-    this.objRecoleccion.id = Number(`${fincaId}${formattedNumber}`);
     console.log('ID generado:', this.objRecoleccion.id);
-
   }
-  
-  
   
   private associate(recolectores: Recolector[]){
     this.recoleccion.forEach(row => {
       console.log(row);
-      let recolector = recolectores.find(rec => rec.nit === row.nit_recolectores); // Usar === para comparar
+      let recolector = recolectores.find(rec => rec.nit === row.nit_recolectores);
       if (recolector) {
         row.recolector = recolector;
       }
@@ -147,20 +136,36 @@ export class Tab2Page implements OnInit {
     this.generateRecoleccionId(fincaId);
   }
   
-  
-  tipoRecolecion(event: any){
-    const tipo = event.detail.value
-    console.log(tipo)
-
-    if(tipo === 'kg'){
-      this.preMin = 10000
-      this.preMax = 50000
-    }else{
-      this.preMin = 25000
-      this.preMax = 100000
+  onRecolectorChange(event: any) {
+    const recolectorId = event.detail.value;
+    const recolector = this.sqliteService.recolec.find(rec => rec.nit === recolectorId);
+    if (recolector) {
+      // Solo asigna las propiedades necesarias
+      this.objRecoleccion.recolector = {
+        nit: recolector.nit,
+        nombre1: recolector.nombre1,
+        apellido1: recolector.apellido1,
+      };
+    } else {
+      console.error('Error: No se encontró el recolector con nit:', recolectorId);
     }
-    console.log(this.preMin, this.preMax)
   }
+  
+  
+  
+  tipoRecolecion(event: any) {
+    const tipo = event.detail.value;
+    console.log(tipo);
+    if (tipo === 'Kg') {
+      this.preMin = 10000;
+      this.preMax = 50000;
+    } else {
+      this.preMin = 25000;
+      this.preMax = 100000;
+    }
+    console.log(this.preMin, this.preMax);
+  }
+  
 
   validarVariedad(event: any) {
     const value = event.detail.value; // cambia target por detail
@@ -187,12 +192,12 @@ export class Tab2Page implements OnInit {
     try {
       this.objRecoleccion.fecRegistro = moment().format('YYYY-MM-DDTHH:mm');
       console.log('Datos a insertar:', this.objRecoleccion);
-      if ( isNaN(this.objRecoleccion.id) || isNaN(this.objRecoleccion.cosechaId) || isNaN(this.objRecoleccion.nit_recolectores) || isNaN(this.objRecoleccion.variedad) || isNaN(this.objRecoleccion.cantidad) || isNaN(this.objRecoleccion.vlrRecoleccion)
-      ) {
-        console.error('Error: uno o más valores numéricos no son válidos.');
+  
+      // Validaciones
+      if (!this.objRecoleccion.id || isNaN(this.objRecoleccion.cosechaId) || isNaN(this.objRecoleccion.nit_recolectores) || isNaN(this.objRecoleccion.variedad) || isNaN(this.objRecoleccion.cantidad) || isNaN(this.objRecoleccion.vlrRecoleccion)) {
+        console.error('Error: uno o más valores numéricos no son válidos.', this.objRecoleccion);
         return; 
       }
-      
   
       if (this.update) {
         // Lógica para actualizar recolección (si estás actualizando)
@@ -202,14 +207,13 @@ export class Tab2Page implements OnInit {
           this.alertService.alertMenssage('Excelente', 'Recolección guardada');
           this.getRecoleccion(); // Actualiza la lista de recolecciones
           this.onCloseForm();
-        }).catch(e => {
-          console.error('Error al insertar recolección:', e);
-          this.alertService.alertMenssage('Todo lo que podia salir mal salio mal', JSON.stringify(e));
+        }).catch(error => {
+          console.error('Error al insertar recolección:', error);
+          this.alertService.alertMenssage('Todo lo que podia salir mal salio mal', JSON.stringify(error));
         });
       }
     } catch (error) {
       console.error('Error al preparar los datos para inserción:', error);
     }
-  }
-  
+  }  
 }

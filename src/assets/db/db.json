@@ -192,7 +192,7 @@
     {
       "name": "recoleccion",
       "schema": [
-        {"column": "id", "value":"INTEGER NOT NULL PRIMARY KEY"},
+        {"column": "id", "value":"TEXT NOT NULL PRIMARY KEY"},
         {"column": "cosechaId", "value":"INTEGER NOT NULL"},
         {"column": "nit_recolectores", "value":"INTEGER NOT NULL"},
         {"column": "fecha", "value": "TEXT NULL"},
@@ -216,7 +216,7 @@
         [
           1,
           1,
-          1,
+          1 ,
           "2024-10-01",
           "ss",
           1,

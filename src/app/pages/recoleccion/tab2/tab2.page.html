@@ -19,10 +19,19 @@
       <ion-row *ngFor="let row of recoleccion">
         <ion-col>
           <ion-item>
-            {{ row.recolector?.nombre }} {{ row.recolector?.apellido1 }}, Lote: {{ row.lote }} | {{ row.fecRegistro | date: 'dd MM yyyy'}}
+            {{ row.recolector?.nombre1 }} {{ row.recolector?.apellido1 }},  {{ row.fecRegistro | date: 'dd MM yyyy'}}
           </ion-item>
         </ion-col>
       </ion-row>
+
+      <!-- <ion-row *ngFor="let recolector of sqliteService.recolec">
+        <ion-col>
+          <ion-item>
+            {{ recolector.nit }} {{ recolector.apellido1 }}, 
+          </ion-item>
+        </ion-col>
+      </ion-row> -->
+
     </div>
     
     <div *ngIf="showForm">
@@ -44,11 +53,11 @@
 
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item class="ion-margin">
-                <ion-select [(ngModel)]="objRecoleccion.nit_recolectores" name="nit_recolectores" placeholder="Selecciona un recolector" interface="popover" (ionChange)="validarNitRecolector($event)">
+                <ion-select [(ngModel)]="objRecoleccion.nit_recolectores" name="nit_recolectores" placeholder="Selecciona un recolector" interface="popover" (ionChange)="onRecolectorChange($event)">
                   <ion-select-option *ngFor="let recolector of sqliteService.recolec" [value]="recolector.nit">
-                    {{ recolector.nombre1 }}
+                    {{ recolector.nombre }}
                   </ion-select-option>
-                </ion-select>
+                </ion-select>                
               </ion-item>
             </ion-col>
 
@@ -83,7 +92,7 @@
             
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item class="ion-margin">
-                <ion-select placeholder="Tipo de recoleccion" interface="popover" [(ngModel)]="objRecoleccion.tipoRecoleccion" name="tipoRecoleccion">
+                <ion-select placeholder="Tipo de recoleccion" interface="popover" [(ngModel)]="objRecoleccion.tipoRecoleccion" name="tipoRecoleccion" (ionChange)="tipoRecolecion($event)">
                   <ion-select-option value="Kg">KG</ion-select-option>
                   <ion-select-option value="Jor">JOR</ion-select-option>
                 </ion-select>                
@@ -107,7 +116,7 @@
                 <ion-range class="ion-margin" label="Precio" name="vlrRecoleccion" [min]="preMin" [max]="preMax" *ngIf="objRecoleccion" [(ngModel)]="objRecoleccion.vlrRecoleccion"></ion-range>
                 <ion-text>$ {{ objRecoleccion.vlrRecoleccion }}</ion-text>
               </ion-item>
-            </ion-col>
+            </ion-col>            
 
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item>
@@ -119,8 +128,8 @@
         </form>
       </ion-row>
 
-      <ion-button class="ion-margin" expand="block" color="danger" (click)="onCloseForm()">Volver</ion-button>
       <ion-button class="ion-margin" expand="block" (click)="creaateRecoleccion()">{{ update ? 'Actualizar Recoleccion' : 'Agregar Recoleccion' }}</ion-button>
+      <ion-button class="ion-margin" expand="block" color="danger" (click)="onCloseForm()">Volver</ion-button>
 
     </div>
   </ion-grid>

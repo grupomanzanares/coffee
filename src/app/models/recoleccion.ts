@@ -17,7 +17,7 @@ import { Recolector } from "./recolector";
 // }
 
 export class Recoleccion {
-    id: number; 
+    id: string; 
     cosechaId: number;            
     nit_recolectores: number;     
     fecha: string;                
@@ -29,5 +29,9 @@ export class Recoleccion {
     vlrRecoleccion: number;       
     observacion: string;          
     fecRegistro: string;          
-    recolector?: Recolector;
+    recolector?: {
+        nit: number;
+        nombre1: string;
+        apellido1: string;
+      };      
 }
