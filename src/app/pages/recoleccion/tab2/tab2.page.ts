@@ -33,26 +33,32 @@ export class Tab2Page implements OnInit {
     const year = now.getFullYear();
     this.currentDate = `${day}/${month}/${year}`;
     this.objRecoleccion = new Recoleccion();
-    this.objRecoleccion.vlrRecoleccion = 0;
   }
   
 
   ngOnInit(): void {
-    // console.log('ngOnInit started');
     this.sqliteService.getCosechas();
     this.getRecoleccion();
     this.sqliteService.getFincas();
     this.sqliteService.getrecolectores();
-    // console.log('ngOnInit - objRecoleccion:', this.objRecoleccion);
 
     // Asignar `currentYear` como número correctamente a `cosechaId`
     this.objRecoleccion.cosechaId = parseInt(this.currentYear, 10); 
     this.objRecoleccion.nit_recolectores = Number(this.objRecoleccion.nit_recolectores);
     this.objRecoleccion.variedad = Number(this.objRecoleccion.variedad);
     this.objRecoleccion.cantidad = Number(this.objRecoleccion.cantidad);
-    this.objRecoleccion.vlrRecoleccion = Number(this.objRecoleccion.vlrRecoleccion);  
     this.objRecoleccion.vlrRecoleccion = 0;
     this.objRecoleccion.fecha = this.currentDate; 
+  }
+
+  soloLetras(event: any){
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^a-zA-Z]/g, '');
+  }
+
+  soloNumeros(event: any){
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^0-9]/g, '')
   }
 
   getRecoleccion(){
@@ -90,7 +96,6 @@ export class Tab2Page implements OnInit {
   
   private associate(recolectores: Recolector[]){
     this.recoleccion.forEach(row => {
-      console.log(row);
       let recolector = recolectores.find(rec => rec.nit === row.nit_recolectores);
       if (recolector) {
         row.recolector = recolector;
@@ -102,10 +107,10 @@ export class Tab2Page implements OnInit {
   onShowForm(){
     console.log('Showing form');
     this.showForm = true;
+    this.getRecoleccion();
   }
 
   onCloseForm(){
-    console.log('Closing form');
     this.update = false;
     this.objRecoleccion = new Recoleccion();
     this.showForm = false;
@@ -166,16 +171,6 @@ export class Tab2Page implements OnInit {
     console.log(this.preMin, this.preMax);
   }
   
-  validarVariedad(event: any) {
-    const value = event.detail.value; // cambia target por detail
-    if (!isNaN(value)) {
-      this.objRecoleccion.variedad = Number(value);
-    } else {
-      this.objRecoleccion.variedad = null; // o algún valor por defecto
-      console.error('Error: el valor de variedad no es un número válido');
-    }
-  }
-  
   validarNitRecolector(event: any) {
     const value = event.detail.value; 
     if (!isNaN(value)) {
@@ -198,13 +193,20 @@ export class Tab2Page implements OnInit {
       }
   
       if (this.update) {
-        // Lógica para actualizar recolección (si estás actualizando)
+        this.sqliteService.updateRecoleccion(this.objRecoleccion).then(() =>{
+        this.alertService.alertMenssage('Exito', 'Datos actualizados con exito');
+        this.onCloseForm();
+        }).catch(e => {
+          console.log(e)
+          this.alertService.alertMenssage(e, JSON.stringify(e))
+        })
       } else {
         // Insertar nueva recolección
         this.sqliteService.createRecoleccion(this.objRecoleccion).then(() => {
           this.alertService.alertMenssage('Excelente', 'Recolección guardada');
-          this.getRecoleccion(); // Actualiza la lista de recolecciones
+          this.getRecoleccion(); 
           this.onCloseForm();
+          this.sqliteService.getrecolectores();
         }).catch(error => {
           console.error('Error al insertar recolección:', error);
           this.alertService.alertMenssage('Todo lo que podia salir mal salio mal', JSON.stringify(error));
@@ -214,4 +216,26 @@ export class Tab2Page implements OnInit {
       console.error('Error al preparar los datos para inserción:', error);
     }
   }  
+
+  updateRecoleccion(recoleccion: Recoleccion){
+    this.objRecoleccion = recoleccion;
+    this.update = true;
+    this.onShowForm();
+  }
+
+  deleteRecolecconConfirm(recoleccion: Recoleccion){
+    const sefl = this
+    this.alertService.alertConfirm('¿Eliminar?','¿Estas seguro que quieres eliminar esta recoleccion?', function(){
+      sefl.deleteRecoleccion(recoleccion)
+    })
+  }
+
+  deleteRecoleccion(recoleccion: Recoleccion){
+    this.sqliteService.deleteRecoleccion(recoleccion).then(() => {
+      this.alertService.alertMenssage('Exito', 'Recoleccion eliminada');
+      this.getRecoleccion();
+    }).catch(e =>{
+      this.alertService.alertMenssage('Error', JSON.stringify(e))
+    })
+  }
 }

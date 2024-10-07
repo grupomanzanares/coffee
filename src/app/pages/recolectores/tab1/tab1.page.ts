@@ -35,6 +35,16 @@ export class Tab1Page implements OnInit {
     }
   }
 
+  soloLetras(event: any){
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^a-zA-Z]/g, '');
+  }
+
+  soloNumeros(event: any){
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^0-9]/g, '')
+  }
+
   getRecolectores(){
     this.collector = [];
     this.sqliteService.getRecolectores().then((collector: Recolector[]) => {

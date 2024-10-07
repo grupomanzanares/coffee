@@ -1,15 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CapacitorSQLite, capSQLiteChanges, capSQLiteValues, JsonSQLite } from '@capacitor-community/sqlite';
-import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
 import { Preferences } from '@capacitor/preferences';
 import { AlertController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { Recolector } from '../models/recolector';
-import { Statement } from '@angular/compiler';
 import { Recoleccion } from '../models/recoleccion';
-import { query } from '@angular/animations';
 import { catchError, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -107,17 +104,6 @@ export class SqliteManagerService {
       )
       .subscribe();
   }
-  
-
-//   async resetDatabase() {
-//   const db = await this.getDbName();
-//   console.log("Eliminando base de datos:", db);
-//   await CapacitorSQLite.deleteDatabase({ database: db });
-//   await Preferences.remove({ key: this.DB_SETUP_KEY });
-//   console.log("Base de datos eliminada. Re-iniciando importación...");
-//   this.downloadDataBase();
-// }
-
 
   async getDbName(){
     if (!this.dbName) {
@@ -349,11 +335,6 @@ export class SqliteManagerService {
     });
   }
 
-  // getRecolecName(recolectorId: string): string {
-  //   const recolector = this.recolec.find(rec => rec.nit === Number (recolectorId));
-  //   return recolector ? recolector.nombre1 : 'Nombre desconocido'
-  // }
-
   async getCosechas() {
     const db = await this.getDbName();
     const query = 'SELECT id, name FROM cosecha';
@@ -404,5 +385,56 @@ export class SqliteManagerService {
     });
   }
   
-  
+  async updateRecoleccion(recoleccion: Recoleccion){
+    let sql = 'UPDATE recoleccion SET cosechaId=?, nit_recolectores=?, fecha=?, finca=?, lote=?, variedad=?, tipoRecoleccion=?, cantidad=?, vlrRecoleccion=?, observacion=? WHERE id = ?';
+    const db = await this.getDbName();
+    return CapacitorSQLite.executeSet({
+      database: db,
+      set: [
+        {
+          statement: sql,
+          values: [
+            recoleccion.cosechaId,
+            recoleccion.nit_recolectores,
+            recoleccion.fecha,
+            recoleccion.finca,
+            recoleccion.lote, 
+            recoleccion.variedad,
+            recoleccion.tipoRecoleccion,
+            recoleccion.cantidad,
+            recoleccion.vlrRecoleccion,
+            recoleccion.observacion,
+            recoleccion.id
+          ]
+        }
+      ]
+    }).then((changes: capSQLiteChanges) => {
+      if (this.isWeb) {
+        CapacitorSQLite.saveToStore({ database: db });
+      }
+      return changes;
+    });
+  }
+
+  async deleteRecoleccion(recoleccion: Recoleccion){
+    let sql = 'UPDATE recoleccion SET active = 0 WHERE id = ?'
+    const db = await this.getDbName();
+    return CapacitorSQLite.executeSet({
+      database : db,
+      set: [
+        {
+          statement: sql,
+          values: [
+            recoleccion.id
+          ]
+        }
+      ]
+    }).then((changes: capSQLiteChanges) => {
+      if (this.isWeb) {
+        CapacitorSQLite.saveToStore({ database: db });
+      }
+      return changes;
+    });
+  }
+
 }
