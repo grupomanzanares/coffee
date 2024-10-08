@@ -26,6 +26,7 @@ export class SqliteManagerService {
   fincas:{id: string, name: string, lotes: number} [] = [];
   recolec:{nit: number,nombre: string, nombre1: string, apellido1: string} [] = [];
   cosechas:{id: number, name: string} [] = [];
+  tipos:{id: number, name: string} [] = [];
 
   constructor(private alertCtrl: AlertController, private http: HttpClient) {
     this.isWeb = false;
@@ -344,6 +345,20 @@ export class SqliteManagerService {
       statement: query
     }).then((result) => {
       this.cosechas = result.values; // Guarda las `cosechas` para usar en el ion-select
+    }).catch((error) => {
+      console.error('Error al traer las cosechas:', error);
+    });
+  }
+
+  async getTipoRec(){
+    const db = await this.getDbName();
+    const query = 'SELECT id, name FROM tipoRecoleccion';
+
+    CapacitorSQLite.query({
+      database: db,
+      statement: query
+    }).then((result) => {
+      this.tipos = result.values;
     }).catch((error) => {
       console.error('Error al traer las cosechas:', error);
     });

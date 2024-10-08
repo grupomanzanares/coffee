@@ -38,6 +38,7 @@ export class Tab2Page implements OnInit {
 
   ngOnInit(): void {
     this.sqliteService.getCosechas();
+    this.sqliteService.getTipoRec();
     this.getRecoleccion();
     this.sqliteService.getFincas();
     this.sqliteService.getrecolectores();
@@ -45,8 +46,8 @@ export class Tab2Page implements OnInit {
     // Asignar `currentYear` como número correctamente a `cosechaId`
     this.objRecoleccion.cosechaId = parseInt(this.currentYear, 10); 
     this.objRecoleccion.nit_recolectores = Number(this.objRecoleccion.nit_recolectores);
-    this.objRecoleccion.variedad = Number(this.objRecoleccion.variedad);
-    this.objRecoleccion.cantidad = Number(this.objRecoleccion.cantidad);
+    // this.objRecoleccion.variedad = Number(this.objRecoleccion.variedad);
+    // this.objRecoleccion.cantidad = Number(this.objRecoleccion.cantidad);
     this.objRecoleccion.vlrRecoleccion = 0;
     this.objRecoleccion.fecha = this.currentDate; 
   }
@@ -62,7 +63,6 @@ export class Tab2Page implements OnInit {
   }
 
   getRecoleccion(){
-    // console.log('Datos de recoleccion:', this.recoleccion);
     Promise.all([
       this.sqliteService.getRecolectores(),
       this.sqliteService.getRecoleccion()
@@ -159,6 +159,7 @@ export class Tab2Page implements OnInit {
   } 
   
   tipoRecolecion(event: any) {
+    console.log('Tipo de recolección seleccionado:', event.detail.value);
     const tipo = event.detail.value;
     console.log(tipo);
     if (tipo === '1') {
@@ -187,7 +188,7 @@ export class Tab2Page implements OnInit {
       console.log('Datos a insertar:', this.objRecoleccion);
   
       // Validaciones
-      if (!this.objRecoleccion.id || isNaN(this.objRecoleccion.cosechaId) || isNaN(this.objRecoleccion.nit_recolectores) || isNaN(this.objRecoleccion.variedad) || isNaN(this.objRecoleccion.cantidad) || isNaN(this.objRecoleccion.vlrRecoleccion)) {
+      if (!this.objRecoleccion.id || isNaN(this.objRecoleccion.cosechaId) || isNaN(this.objRecoleccion.nit_recolectores) || isNaN(this.objRecoleccion.vlrRecoleccion)) {
         console.error('Error: uno o más valores numéricos no son válidos.', this.objRecoleccion);
         return; 
       }
@@ -219,9 +220,18 @@ export class Tab2Page implements OnInit {
 
   updateRecoleccion(recoleccion: Recoleccion){
     this.objRecoleccion = recoleccion;
+    const selectedFinca = this.sqliteService.fincas.find(finca => finca.id === recoleccion.finca);
+    if (selectedFinca && selectedFinca.lotes) {
+      this.lotesDisponibles = Array.from({ length: selectedFinca.lotes }, (_, i) => i + 1);
+    } else {
+      this.lotesDisponibles = [];
+    }
+    this.objRecoleccion.tipoRecoleccion = recoleccion.tipoRecoleccion;
+    console.log('Tipo de recolección asignado:', this.objRecoleccion.tipoRecoleccion);
     this.update = true;
     this.onShowForm();
   }
+  
 
   deleteRecolecconConfirm(recoleccion: Recoleccion){
     const sefl = this

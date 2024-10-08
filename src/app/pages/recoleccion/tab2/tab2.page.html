@@ -96,10 +96,11 @@
             
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item class="ion-margin">
-                <ion-select placeholder="Tipo de recoleccion" interface="popover" [(ngModel)]="objRecoleccion.tipoRecoleccion" name="tipoRecoleccion" (ionChange)="tipoRecolecion($event)">
-                  <ion-select-option value="1">KG</ion-select-option>
-                  <ion-select-option value="2">JOR</ion-select-option>
-                </ion-select>                
+                <ion-select [(ngModel)]="objRecoleccion.tipoRecoleccion" name="tipoRecoleccion" placeholder="Selecciona el tipo de recolección" interface="popover" (ionChange)="tipoRecolecion($event)">
+                  <ion-select-option *ngFor="let tipo of sqliteService.tipos" [value]="tipo.id">
+                    {{ tipo.name }}
+                  </ion-select-option>
+                </ion-select>                                
               </ion-item>
             </ion-col>
        
