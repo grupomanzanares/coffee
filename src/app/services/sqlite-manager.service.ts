@@ -136,7 +136,7 @@ export class SqliteManagerService {
   }
 
   async createRecolector(recolector: Recolector){
-    let sql = 'INSERT INTO recolectores (nit, tipo_Identificacion, nombre, nombre1, nombre2, apellido1, apellido2, tipo_Contrato, observacion, banco, cuenta_bancaria) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    let sql = 'INSERT INTO recolectores (nit, tipo_Identificacion, nombre, nombre1, nombre2, apellido1, apellido2, tipo_Contrato, observacion, banco, cuenta_bancaria, fec_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     const db = await this.getDbName();
     return CapacitorSQLite.executeSet({
       database: db,
@@ -154,7 +154,8 @@ export class SqliteManagerService {
             recolector.tipo_Contrato,
             recolector.observacion,
             recolector.banco,
-            recolector.cuenta_bancaria
+            recolector.cuenta_bancaria,
+            recolector.fec_registro
           ]
         }
       ]

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import * as moment from 'moment';
 import { Recolector } from 'src/app/models/recolector';
 import { AlertService } from 'src/app/services/alert.service';
 import { SqliteManagerService } from 'src/app/services/sqlite-manager.service';
@@ -14,13 +15,18 @@ export class Tab1Page implements OnInit {
   public recolector: Recolector;  
   public showForm: boolean;
   public update: boolean;
-
+  public currentDate: string;
   // public data = [];
 
   
   constructor(public sqliteService: SqliteManagerService, private alertService: AlertService) {
     this.showForm = false;
     this.update = false;
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    this.currentDate = `${day}/${month}/${year}`;
   }
   
   ngOnInit(): void {
@@ -72,6 +78,7 @@ export class Tab1Page implements OnInit {
   }
 
   createUpdateCollectors(){
+    this.recolector.fec_registro = moment().format('YYYY-MM-DDTHH:mm');
     if (this.update) {
       this.sqliteService.updateCollector(this.recolector).then(()=>{
         this.alertService.alertMenssage('Exito', 'Datos actualizados con exito')
@@ -88,7 +95,8 @@ export class Tab1Page implements OnInit {
         this.alertService.alertMenssage('Exito', 'Recolector agregado correctamente');
         this.getRecolectores(); 
       }).catch(e =>{
-        this.alertService.alertMenssage('Error', JSON.stringify(e))
+        this.alertService.alertMenssage('Error', JSON.stringify(e));
+        console.log(e)
       })
     }
     this.onCloseForm(); 
