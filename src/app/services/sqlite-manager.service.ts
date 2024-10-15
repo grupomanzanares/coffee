@@ -1,15 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CapacitorSQLite, capSQLiteChanges, capSQLiteValues, JsonSQLite } from '@capacitor-community/sqlite';
-import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
 import { Preferences } from '@capacitor/preferences';
 import { AlertController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { Recolector } from '../models/recolector';
-import { Statement } from '@angular/compiler';
 import { Recoleccion } from '../models/recoleccion';
-import { query } from '@angular/animations';
 import { catchError, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -29,6 +26,7 @@ export class SqliteManagerService {
   fincas:{id: string, name: string, lotes: number} [] = [];
   recolec:{nit: number,nombre: string, nombre1: string, apellido1: string} [] = [];
   cosechas:{id: number, name: string} [] = [];
+  tipos:{id: number, name: string} [] = [];
 
   constructor(private alertCtrl: AlertController, private http: HttpClient) {
     this.isWeb = false;
@@ -74,7 +72,7 @@ export class SqliteManagerService {
 
   downloadDataBase() {
     console.log("Iniciando descarga de base de datos...");
-    this.http.get<JsonSQLite>('assets/db/db2.json', { responseType: 'json' })
+    this.http.get<JsonSQLite>('assets/db/db.json', { responseType: 'json' })
       .pipe(
         map(async (jsonExport: JsonSQLite) => {
           console.log("Contenido de JSON cargado:", jsonExport); // <-- Nuevo log
@@ -107,17 +105,6 @@ export class SqliteManagerService {
       )
       .subscribe();
   }
-  
-
-//   async resetDatabase() {
-//   const db = await this.getDbName();
-//   console.log("Eliminando base de datos:", db);
-//   await CapacitorSQLite.deleteDatabase({ database: db });
-//   await Preferences.remove({ key: this.DB_SETUP_KEY });
-//   console.log("Base de datos eliminada. Re-iniciando importación...");
-//   this.downloadDataBase();
-// }
-
 
   async getDbName(){
     if (!this.dbName) {
@@ -149,7 +136,7 @@ export class SqliteManagerService {
   }
 
   async createRecolector(recolector: Recolector){
-    let sql = 'INSERT INTO recolectores (nit, tipo_Identificacion, nombre, nombre1, nombre2, apellido1, apellido2, tipo_Contrato, observacion, banco, cuenta_bancaria) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    let sql = 'INSERT INTO recolectores (nit, tipo_Identificacion, nombre, nombre1, nombre2, apellido1, apellido2, tipo_Contrato, observacion, banco, cuenta_bancaria, fec_registro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     const db = await this.getDbName();
     return CapacitorSQLite.executeSet({
       database: db,
@@ -167,7 +154,8 @@ export class SqliteManagerService {
             recolector.tipo_Contrato,
             recolector.observacion,
             recolector.banco,
-            recolector.cuenta_bancaria
+            recolector.cuenta_bancaria,
+            recolector.fec_registro
           ]
         }
       ]
@@ -349,11 +337,6 @@ export class SqliteManagerService {
     });
   }
 
-  // getRecolecName(recolectorId: string): string {
-  //   const recolector = this.recolec.find(rec => rec.nit === Number (recolectorId));
-  //   return recolector ? recolector.nombre1 : 'Nombre desconocido'
-  // }
-
   async getCosechas() {
     const db = await this.getDbName();
     const query = 'SELECT id, name FROM cosecha';
@@ -363,6 +346,20 @@ export class SqliteManagerService {
       statement: query
     }).then((result) => {
       this.cosechas = result.values; // Guarda las `cosechas` para usar en el ion-select
+    }).catch((error) => {
+      console.error('Error al traer las cosechas:', error);
+    });
+  }
+
+  async getTipoRec(){
+    const db = await this.getDbName();
+    const query = 'SELECT id, name FROM tipoRecoleccion';
+
+    CapacitorSQLite.query({
+      database: db,
+      statement: query
+    }).then((result) => {
+      this.tipos = result.values;
     }).catch((error) => {
       console.error('Error al traer las cosechas:', error);
     });
@@ -404,5 +401,56 @@ export class SqliteManagerService {
     });
   }
   
-  
+  async updateRecoleccion(recoleccion: Recoleccion){
+    let sql = 'UPDATE recoleccion SET cosechaId=?, nit_recolectores=?, fecha=?, finca=?, lote=?, variedad=?, tipoRecoleccion=?, cantidad=?, vlrRecoleccion=?, observacion=? WHERE id = ?';
+    const db = await this.getDbName();
+    return CapacitorSQLite.executeSet({
+      database: db,
+      set: [
+        {
+          statement: sql,
+          values: [
+            recoleccion.cosechaId,
+            recoleccion.nit_recolectores,
+            recoleccion.fecha,
+            recoleccion.finca,
+            recoleccion.lote, 
+            recoleccion.variedad,
+            recoleccion.tipoRecoleccion,
+            recoleccion.cantidad,
+            recoleccion.vlrRecoleccion,
+            recoleccion.observacion,
+            recoleccion.id
+          ]
+        }
+      ]
+    }).then((changes: capSQLiteChanges) => {
+      if (this.isWeb) {
+        CapacitorSQLite.saveToStore({ database: db });
+      }
+      return changes;
+    });
+  }
+
+  async deleteRecoleccion(recoleccion: Recoleccion){
+    let sql = 'UPDATE recoleccion SET active = 0 WHERE id = ?'
+    const db = await this.getDbName();
+    return CapacitorSQLite.executeSet({
+      database : db,
+      set: [
+        {
+          statement: sql,
+          values: [
+            recoleccion.id
+          ]
+        }
+      ]
+    }).then((changes: capSQLiteChanges) => {
+      if (this.isWeb) {
+        CapacitorSQLite.saveToStore({ database: db });
+      }
+      return changes;
+    });
+  }
+
 }
