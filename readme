@@ -4,9 +4,9 @@ sqlLite.org
 
 Crear proyecto:
     proyecto con plantilla tabs en ionic
-    ionic start coffee
-    cambiar nombre en capacitor.config.ts
-    cambiar tsconfig.json  "strict": false,
+      ionic start coffee
+      cambiar nombre en capacitor.config.ts
+      cambiar tsconfig.json  "strict": false,
 
 
 
