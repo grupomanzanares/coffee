@@ -7,8 +7,9 @@ import { AlertController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { Recolector } from '../models/recolector';
 import { Recoleccion } from '../models/recoleccion';
-import { catchError, map } from 'rxjs/operators';
-import { of } from 'rxjs';
+
+//  import { catchError, map } from 'rxjs/operators';
+//  import { of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +17,8 @@ import { of } from 'rxjs';
 export class SqliteManagerService {
 
   private isWeb: boolean;
-  private DB_SETUP_KEY = 'first_db_setup'
-  private DB_NAME_KEY = 'db_name'
+  private DB_SETUP_KEY = 'first_db_setup'    /** Para crear una vriable Alamcenamiento local:  habria que borrarla cuando se hagan cambios en la bd  */
+  private DB_NAME_KEY = 'db_name'           /** Para crear una vriable Alamcenamiento local  */
   private dbName: string;
   public dbReady: BehaviorSubject<boolean>;
   documentos: { id: number, name: string }[] = [];
@@ -28,17 +29,32 @@ export class SqliteManagerService {
   cosechas:{id: number, name: string} [] = [];
   tipos:{id: number, name: string} [] = [];
 
-  constructor(private alertCtrl: AlertController, private http: HttpClient) {
+  constructor(private alertCtrl: AlertController, 
+              private http: HttpClient) {
     this.isWeb = false;
     this.dbName = '';
-    this.dbReady = new BehaviorSubject(false); 
+    this.dbReady = new BehaviorSubject(false);      /**  Esta siempre escuchando BehaviorSubject */
   }
 
   async init(){
     const info = await Device.getInfo();
     const sqlite = CapacitorSQLite as any;
 
+    const alert = await this.alertCtrl.create({
+      header: 'Informacion',
+      message: 'INit',
+      buttons: ['OK']
+    });
+
+
     if (info.platform == 'android') {
+
+      const alert = await this.alertCtrl.create({
+        header: 'Informacion',
+        message: 'Se esta utilizando desde un android',
+        buttons: ['OK']
+      });
+
       try {
         await sqlite.requestPermission();
       } catch (error) {
@@ -50,19 +66,24 @@ export class SqliteManagerService {
         await alert.present();
       }
     }else if (info.platform == 'web') {
+      console.log("conecting from the web....")
       this.isWeb = true;
-      await sqlite.initWebStore();
+      await sqlite.initWebStore(); /* inicializar sqlite en plataforma web */
     }
-
-    this.setupDataBase();
+    await this.setupDataBase();
   }
 
   async setupDataBase(){
     const dbSetupDone = await Preferences.get({key: this.DB_SETUP_KEY})
+    console.log("dbSetupDone.value:", dbSetupDone.value);
+
     if (!dbSetupDone.value) {
-      this.downloadDataBase();
-      console.log("dowland")
+      await this.downloadDataBase();
+      //await Preferences.set({ key: this.DB_SETUP_KEY, value: 'true' });
+      //this.dbReady.next(true);
+      console.log("Crear Conexion...")
     }else{
+      console.log("ya esta configurada")
       const db = await this.getDbName();
       await CapacitorSQLite.createConnection({database: db});
       await CapacitorSQLite.open({database: db})
@@ -70,41 +91,63 @@ export class SqliteManagerService {
     }
   }
 
-  downloadDataBase() {
-    console.log("Iniciando descarga de base de datos...");
-    this.http.get<JsonSQLite>('assets/db/db.json', { responseType: 'json' })
-      .pipe(
-        map(async (jsonExport: JsonSQLite) => {
-          console.log("Contenido de JSON cargado:", jsonExport); // <-- Nuevo log
-          const jsonString = JSON.stringify(jsonExport);
-          console.log("JSON Exportado:", jsonString);
-          try {
-            const isValid = await CapacitorSQLite.isJsonValid({ jsonstring: jsonString });
-            console.log("Validación de JSON:", isValid.result);
-            if (isValid.result) {
-              this.dbName = jsonExport.database;
-              await CapacitorSQLite.importFromJson({ jsonstring: jsonString });
-              console.log("Importación completada");
-              await CapacitorSQLite.createConnection({ database: this.dbName });
-              await CapacitorSQLite.open({ database: this.dbName });
-              await Preferences.set({ key: this.DB_SETUP_KEY, value: '1' });
-              await Preferences.set({ key: this.DB_NAME_KEY, value: this.dbName });
-              console.log("Base de datos lista");
-              this.dbReady.next(true);
-            } else {
-              console.error("BD no valida");
-            }
-          } catch (error) {
-            console.error('Error durante la validación o importación de la base de datos:', error);
-          }
-        }),
-        catchError((error) => {
-          console.error('Error al cargar el archivo db.json:', error);
-          return of(null); // Retornar un observable nulo en caso de error
-        })
-      )
-      .subscribe();
+  // downloadDataBase_1() {
+  //   console.log("Iniciando descarga de base de datos...");
+  //   this.http.get<JsonSQLite>('assets/db/db.json', { responseType: 'json' })
+  //     .pipe(
+  //       map(async (jsonExport: JsonSQLite) => {
+  //         console.log("Contenido de JSON cargado:", jsonExport); // <-- Nuevo log
+  //         const jsonString = JSON.stringify(jsonExport);
+  //         console.log("JSON Exportado:", jsonString);
+  //         try {
+  //           const isValid = await CapacitorSQLite.isJsonValid({ jsonstring: jsonString });
+  //           console.log("Validación de JSON:", isValid.result);
+  //           if (isValid.result) {
+  //             this.dbName = jsonExport.database;
+  //             await CapacitorSQLite.importFromJson({ jsonstring: jsonString });
+  //             console.log("Importación completada");
+  //             await CapacitorSQLite.createConnection({ database: this.dbName });
+  //             await CapacitorSQLite.open({ database: this.dbName });
+  //             await Preferences.set({ key: this.DB_SETUP_KEY, value: '1' });
+  //             await Preferences.set({ key: this.DB_NAME_KEY, value: this.dbName });
+  //             console.log("Base de datos lista");
+  //             this.dbReady.next(true);
+  //           } else {
+  //             console.error("BD no valida");
+  //           }
+  //         } catch (error) {
+  //           console.error('Error durante la validación o importación de la base de datos:', error);
+  //         }
+  //       }),
+  //       catchError((error) => {
+  //         console.error('Error al cargar el archivo db.json:', error);
+  //         return of(null); // Retornar un observable nulo en caso de error
+  //       })
+  //     )
+  //     .subscribe();
+  // }
+
+
+  async downloadDataBase(){
+    this.http.get('assets/db/db.json').subscribe(async ( jsonExport: JsonSQLite) =>{
+      const jsonstring = JSON.stringify(jsonExport)
+      const isValid = await CapacitorSQLite.isJsonValid({ jsonstring });
+      if(isValid.result){
+        this.dbName = jsonExport.database;
+        await CapacitorSQLite.importFromJson({ jsonstring});   //Se crea la base de datos
+        await CapacitorSQLite.createConnection({ database: this.dbName }) // Nos conectamos
+        await CapacitorSQLite.open({database: this.dbName} )
+
+        console.log("my bd is", this.dbName)
+  
+        await Preferences.set({key: this.DB_SETUP_KEY, value:'1'})          /** variable Alamcenamiento local first_db_setup lo colaca en 1 */
+        await Preferences.set({key: this.DB_NAME_KEY, value: this.dbName}) /** vriable Alamcenamiento local  db_name */
+        this.dbReady.next(true);
+  
+      }
+    })
   }
+
 
   async getDbName(){
     if (!this.dbName) {
@@ -113,6 +156,10 @@ export class SqliteManagerService {
     }
     return this.dbName;
   }
+
+
+
+  /**  Recolectores */
 
   async getRecolectores(search?: string){
     let sql = "SELECT * FROM recolectores WHERE active = 1 ";
@@ -220,6 +267,8 @@ export class SqliteManagerService {
     });
   }
 
+
+  /** Bancos */
   async getBancos() {
     const db = await this.getDbName(); 
     const query = 'SELECT id, name FROM bancos'; 

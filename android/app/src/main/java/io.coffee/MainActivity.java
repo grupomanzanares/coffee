@@ -1,4 +1,4 @@
-package io.class.manager;
+package io.coffee;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "io.class.manager"
+    namespace "io.coffee"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "io.class.manager"
+        applicationId "io.coffee"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

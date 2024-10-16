@@ -12,6 +12,10 @@ Crear proyecto:
 
 Carpetas
     Crear carpeta assets en la raiz del proyecto:  copiar los archivos para los iconos de la aplicacion.
+    Icon files should be at least 1024px x 1024px.  icon-only.png  icon-foreground.png  ico-background.png 
+		Splash screen files should be at least 2732px x 2732px.    splash.png    splash-dark.png
+		deben estar en una carpeta assets en la raiz del proyecto
+		The format can be jpg or png.
 
 Instalaciones
     npm install @capacitor/assets --save-dev       basado en la página:  https://capacitorjs.com/docs/guides/splash-screens-and-icons
@@ -33,8 +37,8 @@ Documentacion sql-lite
 Se debe pegar el plugin en capacitor.config.ts
                     import type { CapacitorConfig } from '@capacitor/cli';
                     const config: CapacitorConfig = {
-                    appId: 'io.class.manager',
-                    appName: 'ManagerClass',
+                    appId: 'io.coffee',
+                    appName: 'coffee',
                     webDir: 'www',
                     plugins: {
                         CapacitorSQLite: {
@@ -63,8 +67,11 @@ Se debe pegar el plugin en capacitor.config.ts
 // Configuraciones
 // For Angular framework
 // Copy manually the file sql-wasm.wasm from node_modules/sql.js/dist/sql-wasm.wasm to the src/assets folder of YOUR_APP
-"copysqlwasm": "copyfiles -u 3 node_modules/sql.js/dist/sql-wasm.wasm src/assets"
-// install: npm install --save-dev copyfiles
+
+    si queremos que en el package.json podemos colocar un script para que haga esto 
+    install: npm install --save-dev copyfiles
+    "copysqlwasm": "copyfiles -u 3 node_modules/sql.js/dist/sql-wasm.wasm src/assets"
+
 
 // Crear servicio: ionic g service services/sqlite-manager
 
@@ -103,6 +110,8 @@ export class AppComponent {
     });
   }
 }
+
+
 
 // ciclos de vida: https://ionicframework.com/docs/angular/lifecycle
 

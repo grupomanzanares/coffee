@@ -12,7 +12,8 @@ export class AppComponent {
 public isWeb: boolean;
 public load: boolean;
 
-constructor(private platform: Platform, private sqliteService: SqliteManagerService ) {
+constructor(private platform: Platform, 
+            private sqliteService: SqliteManagerService ) {
     this.isWeb = false;
     this.initApp();
 }

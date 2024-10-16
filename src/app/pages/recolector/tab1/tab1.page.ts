@@ -19,7 +19,8 @@ export class Tab1Page implements OnInit {
   // public data = [];
 
   
-  constructor(public sqliteService: SqliteManagerService, private alertService: AlertService) {
+  constructor(public sqliteService: SqliteManagerService, 
+              private alertService: AlertService) {
     this.showForm = false;
     this.update = false;
     const now = new Date();

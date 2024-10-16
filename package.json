@@ -33,6 +33,7 @@
     "@capacitor/status-bar": "6.0.1",
     "@ionic/angular": "^8.0.0",
     "coffee": "file:",
+    "crypto-browserify": "^3.12.0",
     "ionicons": "^7.0.0",
     "jeep-sqlite": "^2.8.0",
     "moment": "^2.30.1",

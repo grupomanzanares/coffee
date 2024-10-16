@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.class.manager',
+  appId: 'io.coffee',
   appName: 'coffee',
   webDir: 'www',
   plugins: {

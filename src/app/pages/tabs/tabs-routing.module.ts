@@ -9,7 +9,7 @@ const routes: Routes = [
     children: [
       {
         path: 'tab1',
-        loadChildren: () => import('../recolectores/tab1/tab1.module').then(m => m.Tab1PageModule)
+        loadChildren: () => import('../recolector/tab1/tab1.module').then(m => m.Tab1PageModule)
       },
       {
         path: 'tab2',
