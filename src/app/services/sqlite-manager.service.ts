@@ -49,11 +49,23 @@ export class SqliteManagerService {
 
     if (info.platform == 'android') {
 
+      console.log("conecting from the android....")
+      const permissionGranted = await sqlite.requestPermission();
+      if (!permissionGranted) {
+        const alert = await this.alertCtrl.create({
+          header: 'Permiso necesario',
+          message: 'Debes otorgar permisos para acceder a la base de datos',
+          buttons: ['OK']
+        });
+        await alert.present();
+      }
+
       const alert = await this.alertCtrl.create({
         header: 'Informacion',
         message: 'Se esta utilizando desde un android',
         buttons: ['OK']
       });
+      await alert.present();
 
       try {
         await sqlite.requestPermission();
@@ -211,7 +223,17 @@ export class SqliteManagerService {
         CapacitorSQLite.saveToStore({ database: db });
       }
       return changes;
-    })
+    }).catch(async (error) => {
+      // Manejamos el error
+      console.error('Error al crear recolector:', error);
+      const alert = await this.alertCtrl.create({
+        header: 'Error',
+        message: 'No se pudo crear el recolector. Intenta nuevamente.',
+        buttons: ['OK']
+      });
+      await alert.present();
+      throw error;
+    });
   }
   
   async updateCollector(recolector: Recolector){

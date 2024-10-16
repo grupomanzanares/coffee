@@ -1,7 +1,0 @@
-{
-  "database": "test.db",
-  "version": 1,
-  "encrypted": false,
-  "mode": "full",
-  "tables": []
-}
