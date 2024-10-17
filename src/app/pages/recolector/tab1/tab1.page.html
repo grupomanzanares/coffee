@@ -93,7 +93,7 @@
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item class="ion-margin">
                 <ion-select [(ngModel)]="recolector.banco" name="banco" placeholder="Selecciona tu banco" interface="popover">
-                  <ion-select-option *ngFor="let banco of sqliteService.bancos" [value]="banco.id">
+                  <ion-select-option *ngFor="let banco of bancos" [value]="banco.id">
                     {{ banco.name }}
                   </ion-select-option>
                 </ion-select>

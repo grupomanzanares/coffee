@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as moment from 'moment';
+import { Banco } from 'src/app/models/bancos';
 import { Recolector } from 'src/app/models/recolector';
 import { AlertService } from 'src/app/services/alert.service';
 import { SqliteManagerService } from 'src/app/services/sqlite-manager.service';
@@ -16,6 +17,8 @@ export class Tab1Page implements OnInit {
   public showForm: boolean;
   public update: boolean;
   public currentDate: string;
+  public bancos: Banco[];
+
   // public data = [];
 
   
@@ -32,7 +35,7 @@ export class Tab1Page implements OnInit {
   
   ngOnInit(): void {
     this.sqliteService.getDocumentos();
-    this.sqliteService.getBancos();
+    this.getBancos();
     this.sqliteService.getContratos();
     this.getRecolectores();
     if (!this.recolector) {
@@ -59,6 +62,13 @@ export class Tab1Page implements OnInit {
       console.log("recolectores: ", collector)
     })
   }
+
+  getBancos(){
+    this.sqliteService.getBancos().then((bancos: Banco[]) =>{
+      this.bancos = bancos;
+    })
+  }
+
 
   onShowForm(){
     this.showForm = true;

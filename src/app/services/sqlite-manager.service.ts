@@ -7,6 +7,7 @@ import { AlertController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { Recolector } from '../models/recolector';
 import { Recoleccion } from '../models/recoleccion';
+import { Banco } from '../models/bancos';
 
 //  import { catchError, map } from 'rxjs/operators';
 //  import { of } from 'rxjs';
@@ -21,69 +22,48 @@ export class SqliteManagerService {
   private DB_NAME_KEY = 'db_name'           /** Para crear una vriable Alamcenamiento local  */
   private dbName: string;
   public dbReady: BehaviorSubject<boolean>;
+  
   documentos: { id: number, name: string }[] = [];
-  bancos: { id: number, name: string }[] = [];
+
   contratos: {id: number, name: string} [] = [];
   fincas:{id: string, name: string, lotes: number} [] = [];
   recolec:{nit: number,nombre: string, nombre1: string, apellido1: string} [] = [];
   cosechas:{id: number, name: string} [] = [];
   tipos:{id: number, name: string} [] = [];
 
+  public bancos: Banco[];
+
+
   constructor(private alertCtrl: AlertController, 
               private http: HttpClient) {
+
     this.isWeb = false;
     this.dbName = '';
     this.dbReady = new BehaviorSubject(false);      /**  Esta siempre escuchando BehaviorSubject */
   }
 
-  async init(){
-    const info = await Device.getInfo();
-    const sqlite = CapacitorSQLite as any;
+ /* Inicializar la base de datos  */
+async init(){
+  const info = await Device.getInfo();     /* obtener la información del dispositivo */
+  const sqlite = CapacitorSQLite as any;   /* objeto sqlite */
 
-    const alert = await this.alertCtrl.create({
-      header: 'Informacion',
-      message: 'INit',
-      buttons: ['OK']
-    });
-
-
-    if (info.platform == 'android') {
-
-      console.log("conecting from the android....")
-      const permissionGranted = await sqlite.requestPermission();
-      if (!permissionGranted) {
-        const alert = await this.alertCtrl.create({
-          header: 'Permiso necesario',
-          message: 'Debes otorgar permisos para acceder a la base de datos',
-          buttons: ['OK']
-        });
-        await alert.present();
-      }
-
+  if(info.platform == 'android'){         /* si es un Android */
+    try {
+        await sqlite.requestPermission();     /* solicitar permisos */
+    } catch (error) {  /* si hubo error entonces indicar que se requieren permisos  */
       const alert = await this.alertCtrl.create({
-        header: 'Informacion',
-        message: 'Se esta utilizando desde un android',
-        buttons: ['OK']
+        header: 'Atención',
+        message: 'Se necesita el acceso a la base de datos de forma obligatoria',
+        buttons:['OK']
       });
       await alert.present();
-
-      try {
-        await sqlite.requestPermission();
-      } catch (error) {
-        const alert = await this.alertCtrl.create({
-          header: 'Atención',
-          message: 'Se necesita el acseso a la base de datos de forma obligatoria',
-          buttons: ['OK']
-        });
-        await alert.present();
-      }
-    }else if (info.platform == 'web') {
-      console.log("conecting from the web....")
-      this.isWeb = true;
-      await sqlite.initWebStore(); /* inicializar sqlite en plataforma web */
     }
-    await this.setupDataBase();
+  }else if(info.platform == 'web'){ //web
+    this.isWeb = true;
+    await sqlite.initWebStore();  /* inicializar sqlite en plataforma web */
   }
+  this.setupDataBase();
+}
 
   async setupDataBase(){
     const dbSetupDone = await Preferences.get({key: this.DB_SETUP_KEY})
@@ -102,43 +82,6 @@ export class SqliteManagerService {
       this.dbReady.next(true);
     }
   }
-
-  // downloadDataBase_1() {
-  //   console.log("Iniciando descarga de base de datos...");
-  //   this.http.get<JsonSQLite>('assets/db/db.json', { responseType: 'json' })
-  //     .pipe(
-  //       map(async (jsonExport: JsonSQLite) => {
-  //         console.log("Contenido de JSON cargado:", jsonExport); // <-- Nuevo log
-  //         const jsonString = JSON.stringify(jsonExport);
-  //         console.log("JSON Exportado:", jsonString);
-  //         try {
-  //           const isValid = await CapacitorSQLite.isJsonValid({ jsonstring: jsonString });
-  //           console.log("Validación de JSON:", isValid.result);
-  //           if (isValid.result) {
-  //             this.dbName = jsonExport.database;
-  //             await CapacitorSQLite.importFromJson({ jsonstring: jsonString });
-  //             console.log("Importación completada");
-  //             await CapacitorSQLite.createConnection({ database: this.dbName });
-  //             await CapacitorSQLite.open({ database: this.dbName });
-  //             await Preferences.set({ key: this.DB_SETUP_KEY, value: '1' });
-  //             await Preferences.set({ key: this.DB_NAME_KEY, value: this.dbName });
-  //             console.log("Base de datos lista");
-  //             this.dbReady.next(true);
-  //           } else {
-  //             console.error("BD no valida");
-  //           }
-  //         } catch (error) {
-  //           console.error('Error durante la validación o importación de la base de datos:', error);
-  //         }
-  //       }),
-  //       catchError((error) => {
-  //         console.error('Error al cargar el archivo db.json:', error);
-  //         return of(null); // Retornar un observable nulo en caso de error
-  //       })
-  //     )
-  //     .subscribe();
-  // }
-
 
   async downloadDataBase(){
     this.http.get('assets/db/db.json').subscribe(async ( jsonExport: JsonSQLite) =>{
@@ -291,19 +234,30 @@ export class SqliteManagerService {
 
 
   /** Bancos */
-  async getBancos() {
+  async getBancos(search?: string) {
+    const sql = 'SELECT id, name FROM bancos'; 
     const db = await this.getDbName(); 
-    const query = 'SELECT id, name FROM bancos'; 
-  
-    CapacitorSQLite.query({
+    return CapacitorSQLite.query({
       database: db,
-      statement: query
-    }).then((result) => {
-      this.bancos = result.values;
-    }).catch((error) => {
-      console.error('Error fetching banks:', error);
-    });
+      statement: sql,
+      values: []
+    }).then((response: capSQLiteValues)=>{
+      let bancos: Banco[] =[];
+      for (let index = 0; index < response.values.length; index ++){
+        const row = response.values[index];
+        let banco = row as Banco;
+        bancos.push(banco);
+      }
+      return Promise.resolve(bancos);
+    }).catch(error => Promise.reject(error))
   }
+
+
+
+
+  
+
+
 
   getBancoName(bancoId: number): string {
     const banco = this.bancos.find(b => b.id === bancoId);
