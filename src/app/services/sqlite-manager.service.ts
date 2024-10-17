@@ -8,9 +8,11 @@ import { BehaviorSubject } from 'rxjs';
 import { Recolector } from '../models/recolector';
 import { Recoleccion } from '../models/recoleccion';
 import { Banco } from '../models/bancos';
-
-//  import { catchError, map } from 'rxjs/operators';
-//  import { of } from 'rxjs';
+import { Contrato } from '../models/contrato';
+import  { Documento } from '../models/documentos'
+import { Cosecha } from '../models/cosechas';
+import { Finca } from '../models/fincas';
+import { TipoRecolec } from '../models/tipoRecolecion';
 
 @Injectable({
   providedIn: 'root'
@@ -23,15 +25,13 @@ export class SqliteManagerService {
   private dbName: string;
   public dbReady: BehaviorSubject<boolean>;
   
-  documentos: { id: number, name: string }[] = [];
-
-  contratos: {id: number, name: string} [] = [];
-  fincas:{id: string, name: string, lotes: number} [] = [];
-  recolec:{nit: number,nombre: string, nombre1: string, apellido1: string} [] = [];
-  cosechas:{id: number, name: string} [] = [];
-  tipos:{id: number, name: string} [] = [];
-
+  public tipos:TipoRecolec[];
+  public fincas: Finca[];
+  public recolec: Recolector[];
+  public cosechas: Cosecha [];
+  public contratos: Contrato [];
   public bancos: Banco[];
+  public documentos: Documento [];
 
 
   constructor(private alertCtrl: AlertController, 
@@ -111,8 +111,6 @@ async init(){
     }
     return this.dbName;
   }
-
-
 
   /**  Recolectores */
 
@@ -252,54 +250,50 @@ async init(){
     }).catch(error => Promise.reject(error))
   }
 
+  // ** Documentos */
 
-
-
-  
-
-
-
-  getBancoName(bancoId: number): string {
-    const banco = this.bancos.find(b => b.id === bancoId);
-    return banco ? banco.name : 'Banco desconocido';
-  }
-
-  async getDocumentos(){
+  async getDocumentos(search?: string){
+    const sql = 'SELECT id, name FROM tp_identificacion'
     const db = await this.getDbName();
-    const query = 'SELECT id, name FROM tp_identificacion'
 
-    CapacitorSQLite.query({
+    return CapacitorSQLite.query({
       database: db,
-      statement: query
-    }).then((result) =>{
-      this.documentos = result.values;
+      statement: sql,
+      values: []
+    }).then((response: capSQLiteValues) =>{
+      let documentos: Documento[] = [];
+      for (let i = 0; i < response.values.length; i++) {
+        const element = response.values[i];
+        let documento = element as Documento;
+        documentos.push(documento)
+      }
+      return Promise.resolve(documentos);
     }).catch((error) => {
       console.error('Error al traer los documentos:', error);
     });
   }
 
-  getDocumentoName(documentoId: number): string{
-    const documento = this.documentos.find(b => b.id === documentoId);
-    return documento ? documento.name : 'Documento desconocido';
-  }
+  // ** Contratos */
 
-  async getContratos(){
+  async getContratos(search?: string){
+    const sql = 'SELECT id, name FROM tp_contrato';
     const db = await this.getDbName();
-    const query = 'SELECT id, name FROM tp_contrato';
 
-    CapacitorSQLite.query({
+    return CapacitorSQLite.query({
       database: db,
-      statement: query
-    }).then((result) => {
-      this.contratos = result.values;
+      statement: sql,
+      values: []
+    }).then((response: capSQLiteValues) => {
+      let contratos: Contrato[] = [];
+      for (let i = 0; i < response.values.length; i++) {
+        const element = response.values[i];
+        let contrato = element as Contrato;
+        contratos.push(contrato)        
+      }
+      return Promise.resolve(contratos);
     }).catch((error) => {
       console.error('Error al traer los contratos:', error);
     });
-  }
-
-  getContratosName(contratoId: number): string{
-    const contrato = this.contratos.find(b => b.id === contratoId);
-    return contrato ? contrato.name : 'Contrato desconocido desconocido';
   }
 
     // Recolecion --------------------------------------------------------------------//
@@ -324,69 +318,81 @@ async init(){
   }
 
   
-  async getFincas(){
+  async getFincas(search?: string){
     const db = await this.getDbName(); 
     const query = 'SELECT id, name, lotes FROM finca'; 
     
-    CapacitorSQLite.query({
+    return CapacitorSQLite.query({
       database: db,
-      statement: query
-    }).then((result) => {
-      this.fincas = result.values;
+      statement: query,
+      values: []
+    }).then((response) => {
+      let fincas: Finca[] = [];
+      for (let i = 0; i < response.values.length; i++) {
+        const element = response.values[i];
+        let finca = element as Finca;
+        fincas.push(finca)
+      }
+      this.fincas = fincas
+      return fincas
     }).catch((error) => {
       console.error('Error fetching banks:', error);
+      return Promise.reject(error);
     });
   }
   
   getFincaName(fincaId: string): string {
-    const finca = this.fincas.find(fin => fin.id === fincaId);
+    const finca = this.fincas.find(fin => String(fin.id) === fincaId);
     return finca ? finca.name : 'Nombre de finca desconocida';
   }
   
   getFincaLote(fincaId: string): number {
-    const lotes = this.fincas.find(lot => lot.id === fincaId);
+    const lotes = this.fincas.find(lot => lot.id === Number(fincaId));
     return lotes ? lotes.lotes: 0
   }
+  // ** Cosechas */
 
-  async getrecolectores(){
-    const db = await this.getDbName(); 
-    let sql = 'SELECT nit, nombre, nombre1, apellido1 FROM recolectores WHERE active = 1'
-
-    CapacitorSQLite.query({
-      database: db,
-      statement: sql
-    }).then((result) => {
-      this.recolec = result.values;
-    }).catch((error) => {
-      console.error(error)
-    });
-  }
-
-  async getCosechas() {
+  async getCosechas(search?: string) {
+    const sql = 'SELECT id, name FROM cosecha';
     const db = await this.getDbName();
-    const query = 'SELECT id, name FROM cosecha';
     
-    CapacitorSQLite.query({
+    return CapacitorSQLite.query({
       database: db,
-      statement: query
-    }).then((result) => {
-      this.cosechas = result.values; // Guarda las `cosechas` para usar en el ion-select
+      statement: sql,
+      values: []
+    }).then((response: capSQLiteValues) => {
+      let cosechas : Cosecha[] = [];
+      for (let i = 0; i < response.values.length; i++) {
+        const element = response.values[i];
+        let cosecha = element as Cosecha;
+        cosechas.push(cosecha)
+      } 
+      return Promise.resolve(cosechas)
     }).catch((error) => {
       console.error('Error al traer las cosechas:', error);
+      return Promise.reject(error);
     });
   }
 
   async getTipoRec(){
+    const sql = 'SELECT id, name FROM tipoRecoleccion';
     const db = await this.getDbName();
-    const query = 'SELECT id, name FROM tipoRecoleccion';
 
-    CapacitorSQLite.query({
+    return CapacitorSQLite.query({
       database: db,
-      statement: query
-    }).then((result) => {
-      this.tipos = result.values;
+      statement: sql,
+      values: []
+    }).then((response: capSQLiteValues) => {
+      let tipos: TipoRecolec[] = [];
+      for (let i = 0; i < response.values.length; i++) {
+        const element = response.values[i];
+        let tipo = element as TipoRecolec;
+        tipos.push(tipo)
+      }
+      return Promise.resolve(tipos)
     }).catch((error) => {
       console.error('Error al traer las cosechas:', error);
+      return Promise.reject(error);
     });
   }
   

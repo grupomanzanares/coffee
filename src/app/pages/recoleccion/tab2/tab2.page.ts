@@ -4,6 +4,9 @@ import { Recolector } from 'src/app/models/recolector';
 import { SqliteManagerService } from 'src/app/services/sqlite-manager.service';
 import * as moment from 'moment';
 import { AlertService } from 'src/app/services/alert.service';
+import { Cosecha } from 'src/app/models/cosechas';
+import { Finca } from 'src/app/models/fincas';
+import { TipoRecolec } from 'src/app/models/tipoRecolecion';
 
 @Component({
   selector: 'app-tab2',
@@ -21,6 +24,10 @@ export class Tab2Page implements OnInit {
   public lotesDisponibles: number[] = [];
   public preMin: number = 0;
   public preMax: number = 0;
+  public cosechas: Cosecha[];
+  public recolector: Recolector[];
+  public finca: Finca[];
+  public tipoRecoleccion: TipoRecolec[];
 
   constructor(public sqliteService: SqliteManagerService, private alertService: AlertService) {
     this.showForm = false;
@@ -37,14 +44,14 @@ export class Tab2Page implements OnInit {
   
 
   ngOnInit(): void {
-    this.sqliteService.getCosechas();
-    this.sqliteService.getTipoRec();
+    this.getCosechas();
+    this.getTipoRec();
     this.getRecoleccion();
-    this.sqliteService.getFincas();
-    this.sqliteService.getrecolectores();
+    this.getFincas();
+    this.getrecolectores();
 
     // Asignar `currentYear` como número correctamente a `cosechaId`
-    this.objRecoleccion.cosechaId = parseInt(this.currentYear, 10); 
+    // this.objRecoleccion.cosechaId = parseInt(this.currentYear, 10); 
     this.objRecoleccion.nit_recolectores = Number(this.objRecoleccion.nit_recolectores);
     // this.objRecoleccion.variedad = Number(this.objRecoleccion.variedad);
     // this.objRecoleccion.cantidad = Number(this.objRecoleccion.cantidad);
@@ -76,6 +83,35 @@ export class Tab2Page implements OnInit {
     });
   }
   
+  getCosechas(){
+    this.sqliteService.getCosechas().then((cosecha: Cosecha[]) =>{
+      this.cosechas = cosecha
+    })
+  }
+
+  getrecolectores(){
+    this.sqliteService.getRecolectores().then((recolector: Recolector[]) => {
+      this.recolector = recolector
+    }).catch((e) =>{
+      console.error('Error al traer los recolectores', e)
+    })
+  }
+
+  getFincas() {
+    this.sqliteService.getFincas().then((fincas) => {
+      this.finca = fincas;
+      console.log('Fincas cargadas:', this.finca);  // Verificar si las fincas se cargaron correctamente
+    }).catch((error) => {
+      console.error('Error al obtener las fincas:', error);
+    });
+  }
+
+  getTipoRec(){
+    this.sqliteService.getTipoRec().then((tipo: TipoRecolec[]) =>{
+      this.tipoRecoleccion = tipo
+    })
+  }
+
   generateRecoleccionId(fincaId: string) {
     if (!fincaId) {
       console.error('Finca ID no válido:', fincaId);
@@ -123,22 +159,24 @@ export class Tab2Page implements OnInit {
       console.error('Finca seleccionada no es válida:', fincaId);
       return;
     } 
+    if (!this.finca || this.finca.length === 0) {
+      console.error('Error: No se han cargado las fincas.');
+      return;
+    }
     console.log('Finca seleccionada:', fincaId);
-    const selectedFinca = this.sqliteService.fincas.find(finca => finca.id === fincaId);
+    const selectedFinca = this.finca.find(finca => finca.id === fincaId);
     // Si la finca tiene lotes, generar la lista de lotes como un arreglo de números
     if (selectedFinca && selectedFinca.lotes) {
       this.lotesDisponibles = Array.from({ length: selectedFinca.lotes }, (_, i) => i + 1);
     } else {
       this.lotesDisponibles = []; // Si no hay lotes, dejar el arreglo vacío
     }
-  
-
     this.generateRecoleccionId(fincaId);
   }
   
   onRecolectorChange(event: any) {
     const recolectorId = event.detail.value;
-    const recolector = this.sqliteService.recolec.find(rec => rec.nit === recolectorId);
+    const recolector = this.recolector.find(rec => rec.nit === recolectorId);
     if (recolector) {
       // Solo asigna las propiedades necesarias
       this.objRecoleccion.recolector = {
@@ -162,7 +200,7 @@ export class Tab2Page implements OnInit {
     console.log('Tipo de recolección seleccionado:', event.detail.value);
     const tipo = event.detail.value;
     console.log(tipo);
-    if (tipo === '1') {
+    if (tipo === 1) {
       this.preMin = 10000;
       this.preMax = 50000;
     } else {
@@ -207,7 +245,7 @@ export class Tab2Page implements OnInit {
           this.alertService.alertMenssage('Excelente', 'Recolección guardada');
           this.getRecoleccion(); 
           this.onCloseForm();
-          this.sqliteService.getrecolectores();
+          this.sqliteService.getRecolectores();
         }).catch(error => {
           console.error('Error al insertar recolección:', error);
           this.alertService.alertMenssage('Todo lo que podia salir mal salio mal', JSON.stringify(error));
@@ -218,18 +256,32 @@ export class Tab2Page implements OnInit {
     }
   }  
 
-  updateRecoleccion(recoleccion: Recoleccion){
+  updateRecoleccion(recoleccion: Recoleccion) {
     this.objRecoleccion = recoleccion;
-    const selectedFinca = this.sqliteService.fincas.find(finca => finca.id === recoleccion.finca);
-    if (selectedFinca && selectedFinca.lotes) {
-      this.lotesDisponibles = Array.from({ length: selectedFinca.lotes }, (_, i) => i + 1);
-    } else {
-      this.lotesDisponibles = [];
-    }
-    this.objRecoleccion.tipoRecoleccion = recoleccion.tipoRecoleccion;
-    console.log('Tipo de recolección asignado:', this.objRecoleccion.tipoRecoleccion);
-    this.update = true;
-    this.onShowForm();
+    
+    // Obtener las fincas del servicio
+    this.sqliteService.getFincas().then((fincas: Finca[]) => {
+      // Convertir `recoleccion.finca` a número para hacer la comparación
+      const selectedFinca = fincas.find(finca => finca.id === Number(recoleccion.finca)); // Convertir `recoleccion.finca` a number
+      if (selectedFinca) {
+        // Si la finca tiene lotes, generar la lista de lotes
+        if (selectedFinca.lotes) {
+          this.lotesDisponibles = Array.from({ length: selectedFinca.lotes }, (_, i) => i + 1);
+        } else {
+          this.lotesDisponibles = [];
+        }
+      }
+      
+      // Asignar tipo de recolección
+      this.objRecoleccion.tipoRecoleccion = recoleccion.tipoRecoleccion;
+      console.log('Tipo de recolección asignado:', this.objRecoleccion.tipoRecoleccion);
+      
+      // Actualizar el estado a `update`
+      this.update = true;
+      this.onShowForm(); // Mostrar el formulario después de que se haya completado todo
+    }).catch(error => {
+      console.error('Error al obtener las fincas:', error);
+    });
   }
   
 

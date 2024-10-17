@@ -42,7 +42,7 @@
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item class="ion-margin">
                 <ion-select [(ngModel)]="objRecoleccion.cosechaId" name="cosechaId" placeholder="Selecciona la cosecha" interface="popover" (ionChange)="onCosechaChange($event)">
-                  <ion-select-option *ngFor="let cosecha of sqliteService.cosechas" [value]="cosecha.id">
+                  <ion-select-option *ngFor="let cosecha of cosechas" [value]="cosecha.id">
                     {{ cosecha.name }}
                   </ion-select-option>
                 </ion-select>                
@@ -58,7 +58,7 @@
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item class="ion-margin">
                 <ion-select [(ngModel)]="objRecoleccion.nit_recolectores" name="nit_recolectores" placeholder="Selecciona un recolector" interface="popover" (ionChange)="onRecolectorChange($event)">
-                  <ion-select-option *ngFor="let recolector of sqliteService.recolec" [value]="recolector.nit">
+                  <ion-select-option *ngFor="let recolector of recolector" [value]="recolector.nit">
                     {{ recolector.nombre }}
                   </ion-select-option>
                 </ion-select>                
@@ -68,7 +68,7 @@
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item class="ion-margin">
                 <ion-select [(ngModel)]="objRecoleccion.finca" name="finca" placeholder="Selecciona la finca" interface="popover" (ionChange)="onFincaChange($event)">
-                  <ion-select-option *ngFor="let finca of sqliteService.fincas" [value]="finca.id">
+                  <ion-select-option *ngFor="let finca of finca" [value]="finca.id">
                     {{ finca.name }}
                   </ion-select-option>
                 </ion-select>
@@ -97,7 +97,7 @@
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item class="ion-margin">
                 <ion-select [(ngModel)]="objRecoleccion.tipoRecoleccion" name="tipoRecoleccion" placeholder="Selecciona el tipo de recolección" interface="popover" (ionChange)="tipoRecolecion($event)">
-                  <ion-select-option *ngFor="let tipo of sqliteService.tipos" [value]="tipo.id">
+                  <ion-select-option *ngFor="let tipo of tipoRecoleccion" [value]="tipo.id">
                     {{ tipo.name }}
                   </ion-select-option>
                 </ion-select>                                

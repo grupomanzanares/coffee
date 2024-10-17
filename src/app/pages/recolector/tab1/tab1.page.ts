@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import * as moment from 'moment';
 import { Banco } from 'src/app/models/bancos';
+import { Contrato } from 'src/app/models/contrato';
+import { Documento } from 'src/app/models/documentos'
 import { Recolector } from 'src/app/models/recolector';
 import { AlertService } from 'src/app/services/alert.service';
 import { SqliteManagerService } from 'src/app/services/sqlite-manager.service';
@@ -18,6 +20,9 @@ export class Tab1Page implements OnInit {
   public update: boolean;
   public currentDate: string;
   public bancos: Banco[];
+  public documentos: Documento[];
+  public contratos: Contrato[];
+  // public documento
 
   // public data = [];
 
@@ -34,9 +39,9 @@ export class Tab1Page implements OnInit {
   }
   
   ngOnInit(): void {
-    this.sqliteService.getDocumentos();
     this.getBancos();
-    this.sqliteService.getContratos();
+    this.getDocumentos();
+    this.getContratos();
     this.getRecolectores();
     if (!this.recolector) {
       this.recolector = new Recolector();
@@ -69,6 +74,17 @@ export class Tab1Page implements OnInit {
     })
   }
 
+  getDocumentos(){
+    this.sqliteService.getDocumentos().then((documentos: Documento[]) =>{
+      this.documentos = documentos
+    })
+  }
+
+  getContratos(){
+    this.sqliteService.getContratos().then((contratos: Contrato[]) => {
+      this.contratos = contratos
+    })
+  }
 
   onShowForm(){
     this.showForm = true;
