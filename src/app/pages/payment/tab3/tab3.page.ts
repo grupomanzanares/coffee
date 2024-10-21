@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { Maestra } from 'src/app/models/maestra';
 import { MaestraService } from 'src/app/services/maestra.service';
 import { VpsService } from 'src/app/services/vps.service';
+import { lastValueFrom } from 'rxjs';
+
 
 @Component({
   selector: 'app-tab3',
@@ -29,27 +31,27 @@ export class Tab3Page {
     );
   }
 
-  comparar(event: any){
-    this.maestraService.comparacion('tiposcontrato').subscribe(
-      async (diferencias) => {
-        this.Diferencias = diferencias;
-        console.log('Datos diferentes: ', this.Diferencias);
-
-        if (this.Diferencias.length > 0) {
-          try {
-            await this.maestraService.update(this.Diferencias);
-            console.log('Datos actualizados correctamente.')
-          } catch (error) {
-            console.error('Error al actualizar los datos: ', error)
-          }
-        }else{
-          console.log('No hay datos diferentes para actualizar.');
+  async comparar(event: any) {
+    try {
+      // Esperamos a que la comparacion devuelva el resultado
+      const diferencias = await lastValueFrom(this.maestraService.comparacion('tiposcontrato'));
+  
+      this.Diferencias = diferencias;
+      console.log('Datos diferentes encontrados: ', this.Diferencias);
+  
+      if (this.Diferencias.length > 0) {
+        try {
+          await this.maestraService.update(this.Diferencias);
+          console.log('Datos actualizados correctamente.');
+        } catch (error) {
+          console.error('Error al actualizar los datos: ', error);
         }
-      },
-      (e) => {
-        console.error('Error al comparar datos: ', e)
+      } else {
+        console.log('No hay datos diferentes para actualizar.');
       }
-    )
+    } catch (error) {
+      console.error('Error al comparar datos: ', error);
+    }
   }
 
 }

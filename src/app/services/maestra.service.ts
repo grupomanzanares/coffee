@@ -79,7 +79,7 @@ export class MaestraService {
           );
         });
       
-        console.log('Diferencias encontradas: ', datosDiferentes);
+        //console.log('Diferencias encontradas: ', datosDiferentes);
         return datosDiferentes;
       })
     );
@@ -123,20 +123,20 @@ export class MaestraService {
         });
   
         // Después de la actualización, consultar los datos
-        const consultaSql = `SELECT * FROM tp_contrato WHERE id = ?`;
-        const resultado = await CapacitorSQLite.query({
-          database: db,
-          statement: consultaSql,
-          values: [contrato.id]
-        });
-        console.log(`Datos después de actualizar el contrato con id ${contrato.id}:`, resultado);
+        //const consultaSql = `SELECT * FROM tp_contrato WHERE id = ?`;
+        //const resultado = await CapacitorSQLite.query({
+        //  database: db,
+        //  statement: consultaSql,
+        //  values: [contrato.id]
+        //});
+        //console.log(`Datos después de actualizar el contrato con id ${contrato.id}:`, resultado);
       }
   
       console.log('Actualización completada exitosamente.');
   
       // Opcional: Obtener los datos locales actualizados al final
-      const nuevosDatosLocales = await this.obtenerDtLocal().toPromise();
-      console.log('Nuevos datos locales después de la actualización: ', nuevosDatosLocales);
+      //const nuevosDatosLocales = await this.obtenerDtLocal().toPromise();
+      //console.log('Nuevos datos locales después de la actualización: ', nuevosDatosLocales);
   
     } catch (error) {
       console.error('Error al actualizar los contratos:', error);
