@@ -5,6 +5,7 @@ import { Contrato } from 'src/app/models/contrato';
 import { Documento } from 'src/app/models/documentos'
 import { Recolector } from 'src/app/models/recolector';
 import { AlertService } from 'src/app/services/alert.service';
+import { MaestraService } from 'src/app/services/maestra.service';
 import { SqliteManagerService } from 'src/app/services/sqlite-manager.service';
 
 @Component({
@@ -21,14 +22,9 @@ export class Tab1Page implements OnInit {
   public currentDate: string;
   public bancos: Banco[];
   public documentos: Documento[];
-  public contratos: Contrato[];
-  // public documento
-
-  // public data = [];
-
+  public contratos: {id: number, nombre: string} [] = [];
   
-  constructor(public sqliteService: SqliteManagerService, 
-              private alertService: AlertService) {
+  constructor(public sqliteService: SqliteManagerService,  private alertService: AlertService, private maestraService: MaestraService) {
     this.showForm = false;
     this.update = false;
     const now = new Date();
@@ -47,6 +43,30 @@ export class Tab1Page implements OnInit {
       this.recolector = new Recolector();
     }else{
       this.update = true; 
+    }
+  }
+
+  // Carga inicial de datos
+  async loadInitialData() {
+    try {
+      // Asegurarse de que la base de datos está lista
+      if (!this.sqliteService.dbReady.getValue()) {
+        this.sqliteService.dbReady.subscribe(async (isReady) => {
+          if (isReady) {
+            await this.getBancos();
+            await this.getDocumentos();
+            await this.getContratos();
+            await this.getRecolectores();
+          }
+        });
+      } else {
+        await this.getBancos();
+        await this.getDocumentos();
+        await this.getContratos();
+        await this.getRecolectores();
+      }
+    } catch (error) {
+      console.error('Error al cargar los datos iniciales:', error);
     }
   }
 
@@ -80,10 +100,28 @@ export class Tab1Page implements OnInit {
     })
   }
 
-  getContratos(){
-    this.sqliteService.getContratos().then((contratos: Contrato[]) => {
-      this.contratos = contratos
-    })
+  async getContratos() {
+    try {
+      this.contratos = await this.maestraService.obtenerDtLocal();
+      console.log('Contratos obtenidos desde SQLite: ', this.contratos);
+
+      // Si no hay contratos, forzar la sincronización
+      if (this.contratos.length === 0) {
+        await this.sincronizarContratos();
+      }
+    } catch (e) {
+      console.error('Error al cargar contratos:', e);
+    }
+  }
+
+  async sincronizarContratos() {
+    try {
+      await this.maestraService.sincronizar('tiposcontrato');
+      console.log('Sincronización de contratos completada.');
+      await this.getContratos(); // Vuelve a cargar los contratos después de sincronizar
+    } catch (e) {
+      console.error('Error en la sincronización de contratos:', e);
+    }
   }
 
   onShowForm(){
@@ -97,7 +135,6 @@ export class Tab1Page implements OnInit {
   }
 
   searchCollectors($event){
-    
     console.log($event.detail.value);
     this.sqliteService.getRecolectores($event.detail.value).then((collector: Recolector[])=>{
       this.collector = collector;

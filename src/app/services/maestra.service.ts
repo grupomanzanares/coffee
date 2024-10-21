@@ -144,24 +144,36 @@ export class MaestraService {
 
     try {
       for (const contrato of datosParaCrear) {
-        await CapacitorSQLite.executeSet({
+
+        const exsContrato = await CapacitorSQLite.query({
           database: db,
-          set: [{
-            statement: insertSql,
-            values: [
-              contrato.id, 
-              contrato.codigo, 
-              contrato.nombre, 
-              contrato.descripcion, 
-              contrato.habilitado || 1, 
-              contrato.usuario, 
-              contrato.createdAt, 
-              contrato.updatedAt, 
-              contrato.usuarioMod
-            ]
-          }]
-        });
-        console.log(`Contrato con id ${contrato.id} creado exitosamente.`, contrato);
+          statement: 'SELECT id FROM tp_contrato WHERE id = ?',
+          values: [contrato.id]
+        })
+
+        if (exsContrato.values.length === 0) {
+          // Si no existe, insertamos el contrato
+          await CapacitorSQLite.executeSet({
+            database: db,
+            set: [{
+              statement: insertSql,
+              values: [
+                contrato.id, 
+                contrato.codigo, 
+                contrato.nombre, 
+                contrato.descripcion, 
+                contrato.habilitado || 1, 
+                contrato.usuario, 
+                contrato.createdAt, 
+                contrato.updatedAt, 
+                contrato.usuarioMod
+              ]
+            }]
+          });
+          console.log(`Contrato con id ${contrato.id} creado exitosamente.`, contrato);
+        } else {
+          console.log(`Contrato con id ${contrato.id} ya existe, omitiendo la inserción.`);
+        }
       }
     } catch (error) {
       console.error('Error al crear nuevos contratos:', error);
