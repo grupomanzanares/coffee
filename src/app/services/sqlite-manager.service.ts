@@ -276,7 +276,7 @@ async init(){
   // ** Contratos */
 
   async getContratos(search?: string){
-    const sql = 'SELECT id, name FROM tp_contrato';
+    const sql = 'SELECT id, nombre FROM tp_contrato';
     const db = await this.getDbName();
 
     return CapacitorSQLite.query({

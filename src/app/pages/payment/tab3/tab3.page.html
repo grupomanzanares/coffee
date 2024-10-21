@@ -1,11 +1,32 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title class="ion-text-center">
-      Pagos
+      Sincronización de Datos
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Texto explicativo -->
+  <div class="ion-text-center">
+    <p class="sync-text">
+      Asegúrate de que tienes conexión a internet antes de proceder con la sincronización.
+      Haz clic en el botón para sincronizar los datos con el servidor.
+    </p>
+  </div>
 
+  <!-- Botón de sincronización estilizado con más espacio -->
+  <div class="ion-text-center sync-button">
+    <ion-button size="large" expand="block" color="success" (click)="traerMaestrasVps($event)">
+      <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+      Sincronizar
+    </ion-button>
+  </div>
+
+  <div class="ion-text-center sync-button">
+    <ion-button size="large" expand="block" color="success" (click)="comparar($event)">
+      <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+      Comparacion
+    </ion-button>
+  </div>
 </ion-content>

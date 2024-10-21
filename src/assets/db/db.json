@@ -19,12 +19,19 @@
     {
       "name": "tp_contrato",
       "schema": [
-        { "column": "id", "value": "INTEGER NOT NULL PRIMARY KEY" },
-        { "column": "name", "value": "TEXT NOT NULL" }
+        { "column": "id", "value": "INTEGER NOT NULL PRIMARY KEY"},
+        { "column": "codigo", "value": "TEXT NULL"},
+        { "column": "nombre", "value": "TEXT NOT NULL"},
+        { "column": "descripcion", "value": "TEXT NULL"},
+        { "column": "habilitado", "value":"INTEGER DEFAULT 1"},
+        { "column": "usuario", "value":"TEXT NULL"},
+        { "column": "createdAt", "value":"TEXT NULL"},
+        { "column": "updatedAt", "value":"TEXT NULL"},
+        { "column": "usuarioMod", "value":"TEXT NULL"}
       ],
       "values": [
-        [1, "Nomina"],
-        [2, "Contratista"]
+        [1, "No", "Nominas", null, 1, "admin", "2024-01-01T12:00:00", "2024-01-01T12:00:00", null],
+        [2, "Co", "Contratista", null, 1, "admin", "2024-01-01T12:00:00", "2024-01-01T12:00:00", null]
       ]
     },
     {

@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { Maestra } from 'src/app/models/maestra';
+import { MaestraService } from 'src/app/services/maestra.service';
+import { VpsService } from 'src/app/services/vps.service';
 
 @Component({
   selector: 'app-tab3',
@@ -7,6 +10,46 @@ import { Component } from '@angular/core';
 })
 export class Tab3Page {
 
-  constructor() {}
+  Datos : Maestra[] = [];
+  Diferencias: any[] = [];
+
+  constructor(private _vpsService: VpsService, private maestraService: MaestraService) {
+    this.Datos = [];
+  }
+
+  traerMaestrasVps(event: any){
+    this._vpsService.obtener("tiposcontrato").subscribe(
+      (data)=>{
+        this.Datos = data;
+        console.log(this.Datos);
+      },
+      (e) => {
+        console.error('Error al obtener datos: ', e)
+      }
+    );
+  }
+
+  comparar(event: any){
+    this.maestraService.comparacion('tiposcontrato').subscribe(
+      async (diferencias) => {
+        this.Diferencias = diferencias;
+        console.log('Datos diferentes: ', this.Diferencias);
+
+        if (this.Diferencias.length > 0) {
+          try {
+            await this.maestraService.update(this.Diferencias);
+            console.log('Datos actualizados correctamente.')
+          } catch (error) {
+            console.error('Error al actualizar los datos: ', error)
+          }
+        }else{
+          console.log('No hay datos diferentes para actualizar.');
+        }
+      },
+      (e) => {
+        console.error('Error al comparar datos: ', e)
+      }
+    )
+  }
 
 }

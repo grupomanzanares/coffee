@@ -1,4 +1,12 @@
 export class Contrato {
     id: number;
-    name: string;
-}
+    codigo: string;
+    nombre: string;
+    descripcion: string;
+    habilitado: boolean;
+    usuario: string;
+    createdAt: string;
+    updatedAt: string;
+    usuarioMod: string;
+  }
+  
