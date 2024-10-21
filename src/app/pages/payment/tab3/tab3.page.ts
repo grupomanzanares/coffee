@@ -1,9 +1,5 @@
 import { Component } from '@angular/core';
-import { Maestra } from 'src/app/models/maestra';
 import { MaestraService } from 'src/app/services/maestra.service';
-import { VpsService } from 'src/app/services/vps.service';
-import { lastValueFrom } from 'rxjs';
-
 
 @Component({
   selector: 'app-tab3',
@@ -12,46 +8,31 @@ import { lastValueFrom } from 'rxjs';
 })
 export class Tab3Page {
 
-  Datos : Maestra[] = [];
-  Diferencias: any[] = [];
+  contratos: {id:number, nombre: string} [] = []
 
-  constructor(private _vpsService: VpsService, private maestraService: MaestraService) {
-    this.Datos = [];
-  }
+  constructor(private maestraService: MaestraService) {}
 
-  traerMaestrasVps(event: any){
-    this._vpsService.obtener("tiposcontrato").subscribe(
-      (data)=>{
-        this.Datos = data;
-        console.log(this.Datos);
-      },
-      (e) => {
-        console.error('Error al obtener datos: ', e)
-      }
-    );
-  }
-
-  async comparar(event: any) {
+  async cargarContratos() {
     try {
-      // Esperamos a que la comparacion devuelva el resultado
-      const diferencias = await lastValueFrom(this.maestraService.comparacion('tiposcontrato'));
-  
-      this.Diferencias = diferencias;
-      console.log('Datos diferentes encontrados: ', this.Diferencias);
-  
-      if (this.Diferencias.length > 0) {
-        try {
-          await this.maestraService.update(this.Diferencias);
-          console.log('Datos actualizados correctamente.');
-        } catch (error) {
-          console.error('Error al actualizar los datos: ', error);
-        }
-      } else {
-        console.log('No hay datos diferentes para actualizar.');
-      }
+      this.contratos = await this.maestraService.obtenerDtLocal();
+      console.log('Contratos cargados:', this.contratos);
     } catch (error) {
-      console.error('Error al comparar datos: ', error);
+      console.error('Error al cargar los contratos:', error);
     }
   }
 
+  // Llama al proceso de sincronización que realiza la comparación, actualización e inserción
+  async sincronizarDatos() {
+    try {
+      await this.maestraService.sincronizar('tiposcontrato');
+      console.log('Sincronización completada exitosamente.');
+      await this.cargarContratos();
+    } catch (error) {
+      console.error('Error en la sincronización:', error);
+    }
+  }
+  ionViewDidEnter() {
+    // Cargamos los contratos locales al entrar a la página
+    this.cargarContratos();
+  }
 }

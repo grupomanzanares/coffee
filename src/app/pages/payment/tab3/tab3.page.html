@@ -15,18 +15,32 @@
     </p>
   </div>
 
-  <!-- Botón de sincronización estilizado con más espacio -->
   <div class="ion-text-center sync-button">
-    <ion-button size="large" expand="block" color="success" (click)="traerMaestrasVps($event)">
+    <ion-button size="large" expand="block" color="success" (click)="sincronizarDatos()">
       <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
-      Sincronizar
+      sincronización
     </ion-button>
   </div>
+  
+  <!-- Mostrar los contratos cargados -->
+  <ion-list>
+    <ion-item *ngFor="let contrato of contratos">
+      {{ contrato.nombre }} (ID: {{ contrato.id }})
+    </ion-item>
+  </ion-list>
+  
 
-  <div class="ion-text-center sync-button">
+  <!-- <div class="ion-text-center sync-button">
     <ion-button size="large" expand="block" color="success" (click)="comparar($event)">
       <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
       Comparacion
     </ion-button>
-  </div>
+  </div> -->
+
+  <!-- <div class="ion-text-center sync-button">
+    <ion-button size="large" expand="block" color="success" (click)="createContratos($event)">
+      <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+      Creacion
+    </ion-button>
+  </div> -->
 </ion-content>
