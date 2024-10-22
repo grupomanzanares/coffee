@@ -56,7 +56,7 @@
         {"column": "nombre2", "value": "TEXT NULL"},
         {"column": "apellido1", "value": "TEXT NULL"},
         {"column": "apellido2", "value": "TEXT NULL"},
-        {"column": "rut", "value": "INTEGER DEFAULT 1"},
+        {"column": "rut", "value": "INTEGER"},
         {"column": "active", "value": "INTEGER DEFAULT 1"},
         {"column": "tipo_Contrato", "value": "INTEGER NOT NULL"},
         {"column": "observacion", "value": "TEXT NULL"},

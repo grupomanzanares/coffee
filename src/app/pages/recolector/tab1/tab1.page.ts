@@ -154,7 +154,6 @@ export class Tab1Page implements OnInit {
         this.alertService.alertMenssage('Exito', 'Recolector agregado correctamente');
         this.getRecolectores(); 
       }).catch(e =>{
-        this.alertService.alertMenssage('Error', JSON.stringify(e));
         console.log(e)
       })
     }
@@ -164,6 +163,7 @@ export class Tab1Page implements OnInit {
   updateCollector(recolector: Recolector){
     this.recolector = recolector;
     this.update = true;
+    console.log(recolector.rut)
     this.onShowForm();
   }
 

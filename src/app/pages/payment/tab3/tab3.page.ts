@@ -40,7 +40,7 @@ export class Tab3Page {
       const tpRecoleccion = await this.maestraService.obtenerDtLocal('tipoRecoleccion');
       const cosechas = await this.maestraService.obtenerDtLocal('cosecha');
       this.maestra = [...contratos, ...bancos, ...identificacion, ...tpRecoleccion, ...cosechas];  // Combina ambos arrays en uno solo
-      console.log('Datos combinados cargados:', this.maestra);
+      // console.log('Datos combinados cargados:', this.maestra);
     } catch (error) {
       console.error('Error al cargar los datos:', error);
     }

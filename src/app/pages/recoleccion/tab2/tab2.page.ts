@@ -76,7 +76,7 @@ export class Tab2Page implements OnInit {
     ]).then(results => {
       let recolectores = results[0];
       this.recoleccion = results[1];
-      console.log('Datos de recoleccion:', this.recoleccion);
+      // console.log('Datos de recoleccion:', this.recoleccion);
       this.associate(recolectores);
     }).catch(error => {
       console.error('Error al obtener recolección:', error);
@@ -100,7 +100,7 @@ export class Tab2Page implements OnInit {
   getFincas() {
     this.sqliteService.getFincas().then((fincas) => {
       this.finca = fincas;
-      console.log('Fincas cargadas:', this.finca);  // Verificar si las fincas se cargaron correctamente
+      // console.log('Fincas cargadas:', this.finca);  
     }).catch((error) => {
       console.error('Error al obtener las fincas:', error);
     });
