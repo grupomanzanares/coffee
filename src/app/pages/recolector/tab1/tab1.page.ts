@@ -104,11 +104,6 @@ export class Tab1Page implements OnInit {
     try {
       this.contratos = await this.maestraService.obtenerDtLocal();
       console.log('Contratos obtenidos desde SQLite: ', this.contratos);
-
-      // Si no hay contratos, forzar la sincronización
-      if (this.contratos.length === 0) {
-        await this.sincronizarContratos();
-      }
     } catch (e) {
       console.error('Error al cargar contratos:', e);
     }
@@ -118,7 +113,7 @@ export class Tab1Page implements OnInit {
     try {
       await this.maestraService.sincronizar('tiposcontrato');
       console.log('Sincronización de contratos completada.');
-      await this.getContratos(); // Vuelve a cargar los contratos después de sincronizar
+      await this.getContratos(); 
     } catch (e) {
       console.error('Error en la sincronización de contratos:', e);
     }
