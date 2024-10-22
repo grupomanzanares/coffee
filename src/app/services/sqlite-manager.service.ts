@@ -233,7 +233,7 @@ async init(){
 
   /** Bancos */
   async getBancos(search?: string) {
-    const sql = 'SELECT id, name FROM bancos'; 
+    const sql = 'SELECT id, nombre FROM bancos'; 
     const db = await this.getDbName(); 
     return CapacitorSQLite.query({
       database: db,
@@ -253,7 +253,7 @@ async init(){
   // ** Documentos */
 
   async getDocumentos(search?: string){
-    const sql = 'SELECT id, name FROM tp_identificacion'
+    const sql = 'SELECT id, nombre FROM tp_identificacion'
     const db = await this.getDbName();
 
     return CapacitorSQLite.query({
@@ -353,7 +353,7 @@ async init(){
   // ** Cosechas */
 
   async getCosechas(search?: string) {
-    const sql = 'SELECT id, name FROM cosecha';
+    const sql = 'SELECT id, nombre FROM cosecha';
     const db = await this.getDbName();
     
     return CapacitorSQLite.query({
@@ -375,7 +375,7 @@ async init(){
   }
 
   async getTipoRec(){
-    const sql = 'SELECT id, name FROM tipoRecoleccion';
+    const sql = 'SELECT id, nombre FROM tipoRecoleccion';
     const db = await this.getDbName();
 
     return CapacitorSQLite.query({

@@ -36,7 +36,7 @@ export class AppComponent {
 
   async cargarContratos() {
     try {
-      this.contratos = await this.maestraService.obtenerDtLocal();
+      this.contratos = await this.maestraService.obtenerDtLocal('tp_contrato');
       console.log('Contratos cargados:', this.contratos);
     } catch (error) {
       console.error('Error al cargar los contratos:', error);

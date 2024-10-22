@@ -7,5 +7,5 @@ export class Maestra{
 	usuario     :string = "";
     usuarioMod  :string = "";
     createdAt   :string = "";
-    updateAt    :string = "";
+    updatedAt    :string = "";
 }

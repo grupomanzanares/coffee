@@ -94,7 +94,7 @@
               <ion-item class="ion-margin">
                 <ion-select [(ngModel)]="recolector.banco" name="banco" placeholder="Selecciona tu banco" interface="popover">
                   <ion-select-option *ngFor="let banco of bancos" [value]="banco.id">
-                    {{ banco.name }}
+                    {{ banco.nombre }}
                   </ion-select-option>
                 </ion-select>
               </ion-item>
@@ -112,7 +112,7 @@
               <ion-item class="ion-margin">
                 <ion-select [(ngModel)]="recolector.tipo_Identificacion" name="tipo_Identificacion" placeholder="Seleciona el tipo de documento" interface="popover">
                   <ion-select-option  *ngFor="let documento of documentos" [value]="documento.id">
-                    {{ documento.name }}
+                    {{ documento.nombre }}
                   </ion-select-option>
                 </ion-select>
               </ion-item>
@@ -122,7 +122,7 @@
             <ion-col size="12" size-md="6" size-lg="4">
               <ion-item class="ion-margin">
                 <ion-select [(ngModel)]="recolector.tipo_Contrato" name="tipo_Contrato" placeholder="Selecciona tu tipo de contrato" interface="popover">
-                  <ion-select-option *ngFor="let contrato of contratos" [value]="contrato.id">
+                  <ion-select-option *ngFor="let contrato of Tcontratos" [value]="contrato.id">
                     {{ contrato.nombre }}
                   </ion-select-option>
                 </ion-select>

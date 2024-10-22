@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { Maestra } from 'src/app/models/maestra';
 import { MaestraService } from 'src/app/services/maestra.service';
 import { VpsService } from 'src/app/services/vps.service';
-import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-tab3',
@@ -11,7 +10,7 @@ import { lastValueFrom } from 'rxjs';
 })
 export class Tab3Page {
 
-  contratos: {id:number, nombre: string} [] = [];
+  maestra: {id:number, nombre: string} [] = [];
   Datos: Maestra[] = []
   Diferencias: any[] = []
 
@@ -20,8 +19,8 @@ export class Tab3Page {
   }
 
   // Método para traer los datos del VPS (opcional, si lo necesitas)
-  traerMaestrasVps(event: any) {
-    this._vpsService.obtener("tiposcontrato").subscribe(
+  traerMaestrasVps() {
+    this._vpsService.obtener("cosechas").subscribe(
       (data) => {
         this.Datos = data;
         console.log(this.Datos);
@@ -32,27 +31,39 @@ export class Tab3Page {
     );
   }
 
-  // Cargar los contratos locales
-  async cargarContratos() {
+  // Cargar los maestra locales
+  async cargar() {
     try {
-      this.contratos = await this.maestraService.obtenerDtLocal();
-      console.log('Contratos cargados:', this.contratos);
+      const contratos = await this.maestraService.obtenerDtLocal('tp_contrato');
+      const bancos = await this.maestraService.obtenerDtLocal('bancos');
+      const identificacion = await this.maestraService.obtenerDtLocal('tp_identificacion');
+      const tpRecoleccion = await this.maestraService.obtenerDtLocal('tipoRecoleccion');
+      const cosechas = await this.maestraService.obtenerDtLocal('cosecha');
+      this.maestra = [...contratos, ...bancos, ...identificacion, ...tpRecoleccion, ...cosechas];  // Combina ambos arrays en uno solo
+      console.log('Datos combinados cargados:', this.maestra);
     } catch (error) {
-      console.error('Error al cargar los contratos:', error);
+      console.error('Error al cargar los datos:', error);
     }
   }
 
   async sincronizarDatos() {
     try {
-      await this.maestraService.sincronizar('tiposcontrato');
+      await this.maestraService.sincronizar('tiposcontrato', 'tp_contrato');
+      await this.maestraService.sincronizar('tiposidentificacion', 'tp_identificacion');
+      await this.maestraService.sincronizar('tiposrecoleccion', 'tipoRecoleccion');
+      await this.maestraService.sincronizar('bancos', 'bancos');
+      await this.maestraService.sincronizar('cosechas', 'cosecha');
+      await this.cargar();  // Cargar y combinar los datos después de la sincronización
       console.log('Sincronización completada exitosamente.');
-      await this.cargarContratos();
     } catch (error) {
       console.error('Error en la sincronización:', error);
     }
   }
 
+
   ionViewDidEnter() {
-    this.cargarContratos();
+    this.cargar();
+    // this.sincronizarDatos();
+    // this.traerMaestrasVps();
   }
 }

@@ -22,7 +22,7 @@ export class Tab1Page implements OnInit {
   public currentDate: string;
   public bancos: Banco[];
   public documentos: Documento[];
-  public contratos: {id: number, nombre: string} [] = [];
+  public Tcontratos: Contrato[];
   
   constructor(public sqliteService: SqliteManagerService,  private alertService: AlertService, private maestraService: MaestraService) {
     this.showForm = false;
@@ -102,8 +102,8 @@ export class Tab1Page implements OnInit {
 
   async getContratos() {
     try {
-      this.contratos = await this.maestraService.obtenerDtLocal();
-      console.log('Contratos obtenidos desde SQLite: ', this.contratos);
+      this.Tcontratos = await this.maestraService.obtenerDtLocal('tp_contrato');
+      console.log('Contratos obtenidos desde SQLite: ', this.Tcontratos);
     } catch (e) {
       console.error('Error al cargar contratos:', e);
     }
@@ -111,7 +111,7 @@ export class Tab1Page implements OnInit {
 
   async sincronizarContratos() {
     try {
-      await this.maestraService.sincronizar('tiposcontrato');
+      await this.maestraService.sincronizar('tiposcontrato', 'tp_contrato');
       console.log('Sincronización de contratos completada.');
       await this.getContratos(); 
     } catch (e) {

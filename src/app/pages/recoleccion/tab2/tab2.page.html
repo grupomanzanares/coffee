@@ -43,7 +43,7 @@
               <ion-item class="ion-margin">
                 <ion-select [(ngModel)]="objRecoleccion.cosechaId" name="cosechaId" placeholder="Selecciona la cosecha" interface="popover" (ionChange)="onCosechaChange($event)">
                   <ion-select-option *ngFor="let cosecha of cosechas" [value]="cosecha.id">
-                    {{ cosecha.name }}
+                    {{ cosecha.nombre }}
                   </ion-select-option>
                 </ion-select>                
               </ion-item>
@@ -98,7 +98,7 @@
               <ion-item class="ion-margin">
                 <ion-select [(ngModel)]="objRecoleccion.tipoRecoleccion" name="tipoRecoleccion" placeholder="Selecciona el tipo de recolección" interface="popover" (ionChange)="tipoRecolecion($event)">
                   <ion-select-option *ngFor="let tipo of tipoRecoleccion" [value]="tipo.id">
-                    {{ tipo.name }}
+                    {{ tipo.nombre }}
                   </ion-select-option>
                 </ion-select>                                
               </ion-item>
